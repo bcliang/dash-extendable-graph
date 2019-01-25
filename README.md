@@ -1,16 +1,20 @@
 # dash-extendable-graph
 
+[![PyPI](https://img.shields.io/pypi/v/dash-extendable-graph.svg)](https://pypi.org/project/dash-extendable-graph/)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/dash-extendable-graph.svg)
+[![PyPI - License](https://img.shields.io/pypi/l/dash-extendable-graph.svg)](./LICENSE)
+
 dash-extendable-graph is a Dash component library. This library contains a single component: `ExtendableGraph`. The component is a fork of the Graph() component of [dash-core-components](https://github.com/plotly/dash-core-components), with an extra property (`extendData`) that allows Graph traces to be drawn through `Plotly.extendTraces()` instead of `Plotly.react()`.
 
 ## Installation
 
-```
+```bash
 $ pip install dash-extendable-graph
 ```
 
 ## Usage
 
-```
+```python
 import dash_extendable_graph as deg
 import dash
 from dash.dependencies import Input, Output, State
