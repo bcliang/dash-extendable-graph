@@ -75,12 +75,12 @@ function generateId() {
     );
 }
 
-const GraphWithDefaults = props => {
+const ExtendableGraphWithDefaults = props => {
     const id = props.id ? props.id : generateId();
     return <PlotlyGraph {...props} id={id} />;
 };
 
-class PlotlyGraph extends Component {
+class ExtendableGraph extends Component {
     constructor(props) {
         super(props);
         this.bindEvents = this.bindEvents.bind(this);
@@ -107,6 +107,30 @@ class PlotlyGraph extends Component {
                 }
             }
         );
+    }
+
+    extend(props) {
+        const {figure, id, extendData} = props;
+        const gd = document.getElementById(id);
+
+        if (extendData) {
+            if (gd.data.length < 1) {
+                // figure has no pre-existing data. redirect to plot()
+                props.figure.data = extendData
+                return this.plot(props)
+            }
+
+            var x = [];
+            var y = [];
+            var trace_order = []
+            for (var i = 0; i < extendData.length; i++) {
+                trace_order.push(i)
+                x.push(extendData[i].x)
+                y.push(extendData[i].y)
+            }
+            // console.log([x, y, trace_order])
+            return Plotly.extendTraces(id, {x: x, y: y}, trace_order)
+        }
     }
 
     bindEvents() {
@@ -201,9 +225,13 @@ class PlotlyGraph extends Component {
         }
 
         const figureChanged = this.props.figure !== nextProps.figure;
-
         if (figureChanged) {
             this.plot(nextProps);
+        }
+
+        const extendDataChanged = this.props.extendData != nextProps.extendData;
+        if (extendDataChanged) {
+          this.extend(nextProps)
         }
     }
 
@@ -260,6 +288,11 @@ const graphPropTypes = {
      * when the user zooms or pans on the plot
      */
     relayoutData: PropTypes.object,
+
+    /**
+    * Data that should be appended to existing traces
+    */
+    extendData: PropTypes.array,
 
     /**
      * Plotly `figure` object. See schema:
@@ -477,6 +510,7 @@ const graphDefaultProps = {
     hoverData: null,
     selectedData: null,
     relayoutData: null,
+    extendData: null,
     figure: {data: [], layout: {}},
     animate: false,
     animation_options: {
@@ -528,10 +562,10 @@ const graphDefaultProps = {
     },
 };
 
-GraphWithDefaults.propTypes = graphPropTypes;
-PlotlyGraph.propTypes = graphPropTypes;
+ExtendableGraphWithDefaults.propTypes = graphPropTypes;
+ExtendableGraph.propTypes = graphPropTypes;
 
-GraphWithDefaults.defaultProps = graphDefaultProps;
-PlotlyGraph.defaultProps = graphDefaultProps;
+ExtendableGraphWithDefaults.defaultProps = graphDefaultProps;
+ExtendableGraph.defaultProps = graphDefaultProps;
 
-export default GraphWithDefaults;
+export default ExtendableGraphWithDefaults;
