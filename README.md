@@ -1,11 +1,80 @@
 # dash-extendable-graph
 
-dash-extendable-graph is a Dash component library.
+dash-extendable-graph is a Dash component library. This library contains a single component: `ExtendableGraph`. The component is a fork of the Graph() component of [dash-core-components](https://github.com/plotly/dash-core-components), with an extra property (`extendData`) that allows Graph traces to be drawn through `Plotly.extendTraces()` instead of `Plotly.react()`.
+
+## Installation
+
+```
+$ pip install dash-extendable-graph
+```
+
+## Usage
+
+```
+import dash_extendable_graph as deg
+import dash
+from dash.dependencies import Input, Output, State
+import dash_html_components as html
+import dash_core_components as dcc
+import random
+
+app = dash.Dash(__name__)
+
+app.scripts.config.serve_locally = True
+app.css.config.serve_locally = True
+
+app.layout = html.Div([
+    deg.ExtendableGraph(
+        id='extendablegraph_example',
+        config={'showAxisDragHandles': True,
+                'showAxisRangeEntryBoxes': True,
+                'modeBarButtonsToRemove': [
+                    'sendDataToCloud',
+                    'lasso2d',
+                    'autoScale2d',
+                    'hoverClosestCartesian',
+                    'hoverCompareCartesian',
+                    'toggleSpikelines'],
+                'displaylogo': False,
+                },
+        figure=dict(
+            data=[{'x': [0],
+                   'y': [0],
+                   'mode':'lines+markers'
+                   }],
+        )
+    ),
+    dcc.Interval(
+        id='interval_extendablegraph_update',
+        interval=1000,
+        n_intervals=0,
+        max_intervals=-1),
+    html.Div(id='output')
+])
+
+
+@app.callback(Output('extendablegraph_example', 'extendData'),
+              [Input('interval_extendablegraph_update', 'n_intervals')],
+              [State('extendablegraph_example', 'figure'),
+               State('extendablegraph_example', 'extendData')])
+def update_extendData(n_intervals, existing, info):
+    x_new = existing['data'][0]['x'][-1] + 1
+    y_new = random.random()
+    return [dict(x=[x_new], y=[y_new])]
+
+
+if __name__ == '__main__':
+    app.run_server(debug=True)
+
+```
+
+## dash-component-boilerplate
 
 Get started with:
 1. Install Dash and its dependencies: https://dash.plot.ly/installation
-2. Run `python usage.py`
-3. Visit http://localhost:8050 in your web browser
+2. Install dash-extendable-graph
+3. Run `python usage.py`
+4. Visit http://localhost:8050 in your web browser
 
 ## Contributing
 
@@ -35,7 +104,7 @@ If you have selected install_dependencies during the prompt, you can skip this p
     $ pip install -r tests/requirements.txt
     ```
 
-### Write your component code in `src/lib/components/ExtendableGraph.react.js`. 
+### Write your component code in `src/lib/components/ExtendableGraph.react.js`.
 
 - The demo app is in `src/demo` and you will import your example component code into your demo app.
 - Test your code in a Python environment:
@@ -91,4 +160,3 @@ If you have selected install_dependencies during the prompt, you can skip this p
     1. Publish this repository to GitHub
     2. Tag your GitHub repository with the plotly-dash tag so that it appears here: https://github.com/topics/plotly-dash
     3. Create a post in the Dash community forum: https://community.plot.ly/c/dash
-
