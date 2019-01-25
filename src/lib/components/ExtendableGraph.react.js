@@ -77,7 +77,7 @@ function generateId() {
 
 const ExtendableGraphWithDefaults = props => {
     const id = props.id ? props.id : generateId();
-    return <PlotlyGraph {...props} id={id} />;
+    return <ExtendableGraph {...props} id={id} />;
 };
 
 class ExtendableGraph extends Component {
