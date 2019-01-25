@@ -1,7 +1,7 @@
 import json
 import os
 from setuptools import setup
-
+import io
 
 with open(os.path.join('dash_extendable_graph', 'package.json')) as f:
     package = json.load(f)
@@ -16,5 +16,13 @@ setup(
     include_package_data=True,
     license=package['license'],
     description=package['description'] if 'description' in package else package_name,
+    long_description=io.open('README.md', encoding='utf-8').read(),
+    long_description_content_type='text/markdown',
     install_requires=[]
+    classifiers=[
+        'Environment :: Web Environment',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+    ]
 )
