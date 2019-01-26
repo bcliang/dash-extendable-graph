@@ -18,7 +18,7 @@ setup(
     description=package['description'] if 'description' in package else package_name,
     long_description=io.open('README.md', encoding='utf-8').read(),
     long_description_content_type='text/markdown',
-    install_requires=[]
+    install_requires=[],
     classifiers=[
         'Environment :: Web Environment',
         'License :: OSI Approved :: MIT License',
