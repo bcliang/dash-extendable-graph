@@ -137,7 +137,7 @@ If you have selected install_dependencies during the prompt, you can skip this p
     ```
 2. Create a Python tarball
     ```
-    $ python setup.py sdist
+    $ python setup.py sdist bdist_wheel
     ```
     This distribution tarball will get generated in the `dist/` folder
 
