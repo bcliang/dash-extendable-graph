@@ -36,14 +36,13 @@ app.layout = html.Div([
         interval=1000,
         n_intervals=0,
         max_intervals=-1),
-    html.Div(id='output')
 ])
 
 
 @app.callback(Output('extendablegraph_example', 'extendData'),
               [Input('interval_extendablegraph_update', 'n_intervals')],
               [State('extendablegraph_example', 'figure')])
-def update_extendData(n_intervals, existing, info):
+def update_extendData(n_intervals, existing):
     x_new = existing['data'][0]['x'][-1] + 1
     y_new = random.random()
     return [dict(x=[x_new], y=[y_new])]
