@@ -9,12 +9,13 @@
     "validate-init": "python _validate_init.py",
     "prepublish": "npm run validate-init",
     "build:js-dev": "webpack --mode development",
-    "build:js": "webpack --mode production",
+    "build:js": "npm run lint && webpack --mode production",
     "build:py": "dash-generate-components ./src/lib/components dash_extendable_graph",
     "build:py-activated": "(. venv/bin/activate || venv\\scripts\\activate && npm run build:py)",
     "build:all": "npm run build:js && npm run build:js-dev && npm run build:py",
     "build:all-activated": "(. venv/bin/activate || venv\\scripts\\activate && npm run build:all)",
-    "lint": "eslint src test"
+    "lint": "eslint src",
+    "build:watch": "watch \"npm run build:all\" src --wait 5"
   },
   "author": {
     "name": "Brad Liang",
@@ -26,17 +27,17 @@
   },
   "devDependencies": {
     "babel-core": "^6.26.3",
-    "babel-eslint": "^8.2.3",
+    "babel-eslint": "^8.2.6",
     "babel-loader": "^7.1.4",
-    "component-playground": "^3.0.0",
-    "copyfiles": "^2.0.0",
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
+    "component-playground": "^3.0.0",
+    "copyfiles": "^2.0.0",
     "css-loader": "^0.28.11",
-    "eslint": "^4.19.1",
-    "eslint-config-prettier": "^2.9.0",
+    "eslint": "^5.4.0",
+    "eslint-config-prettier": "^3.0.1",
     "eslint-plugin-import": "^2.12.0",
-    "eslint-plugin-react": "^7.9.1",
+    "eslint-plugin-react": "^7.11.1",
     "npm": "^6.1.0",
     "react-docgen": "^2.20.1",
     "style-loader": "^0.21.0",
@@ -44,14 +45,15 @@
     "webpack-cli": "^3.1.1",
     "webpack-serve": "^1.0.2",
     "react": ">=0.14",
-    "react-dom": ">=0.14"
+    "react-dom": ">=0.14",
+    "watch": "^1.0.2"
   },
   "engines": {
     "node": ">=8.11.0",
     "npm": ">=6.1.0"
   },
   "repository": {
-    "type" : "git",
-    "url" : "https://github.com/bcliang/dash-extendable-graph.git"
+    "type": "git",
+    "url": "https://github.com/bcliang/dash-extendable-graph.git"
   }
 }
