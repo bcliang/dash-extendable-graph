@@ -1,6 +1,6 @@
 {
   "name": "dash_extendable_graph",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "plotly-dash custom component. Adds Plotly.extendTraces() support to dash_core_components.Graph()",
   "homepage": "https://github.com/bcliang/dash-extendable-graph",
   "main": "build/index.js",
@@ -13,7 +13,8 @@
     "build:py": "dash-generate-components ./src/lib/components dash_extendable_graph",
     "build:py-activated": "(. venv/bin/activate || venv\\scripts\\activate && npm run build:py)",
     "build:all": "npm run build:js && npm run build:js-dev && npm run build:py",
-    "build:all-activated": "(. venv/bin/activate || venv\\scripts\\activate && npm run build:all)"
+    "build:all-activated": "(. venv/bin/activate || venv\\scripts\\activate && npm run build:all)",
+    "lint": "eslint src test"
   },
   "author": {
     "name": "Brad Liang",

@@ -110,7 +110,7 @@ class ExtendableGraph extends Component {
     }
 
     extend(props) {
-        const {figure, id, extendData} = props;
+        const {id, extendData} = props;
         const gd = document.getElementById(id);
 
         if (extendData) {
@@ -131,6 +131,8 @@ class ExtendableGraph extends Component {
             // console.log([x, y, trace_order])
             return Plotly.extendTraces(id, {x: x, y: y}, trace_order)
         }
+
+        return this.plot(props)
     }
 
     bindEvents() {
@@ -229,7 +231,7 @@ class ExtendableGraph extends Component {
             this.plot(nextProps);
         }
 
-        const extendDataChanged = this.props.extendData != nextProps.extendData;
+        const extendDataChanged = this.props.extendData !== nextProps.extendData;
         if (extendDataChanged) {
           this.extend(nextProps)
         }
