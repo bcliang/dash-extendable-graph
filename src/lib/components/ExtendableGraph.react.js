@@ -123,7 +123,7 @@ class ExtendableGraph extends Component {
             var x = [];
             var y = [];
             var trace_order = []
-            for (var i = 0; i < gd.data.length; i++) {
+            for (var i = 0; i < Math.min(gd.data.length, extendData.length); i++) {
                 trace_order.push(i)
                 x.push(extendData[i].x)
                 y.push(extendData[i].y)
