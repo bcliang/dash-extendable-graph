@@ -25,8 +25,8 @@ app.layout = html.Div([
                 'displaylogo': False,
                 },
         figure=dict(
-            data=[{'x': [0],
-                   'y': [0],
+            data=[{'x': [0, 1, 2],
+                   'y': [0, .5, 1],
                    'mode':'lines+markers'
                    }],
         )
@@ -45,7 +45,7 @@ app.layout = html.Div([
 def update_extendData(n_intervals, existing):
     x_new = existing['data'][0]['x'][-1] + 1
     y_new = random.random()
-    return [dict(x=[x_new], y=[y_new])]
+    return [dict(x=[x_new], y=[y_new]), dict(x=[x_new], y=[random.random()])]
 
 
 if __name__ == '__main__':

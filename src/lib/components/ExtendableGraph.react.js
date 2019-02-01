@@ -114,7 +114,7 @@ class ExtendableGraph extends Component {
         const gd = document.getElementById(id);
 
         if (extendData) {
-            if (gd.data.length < 1) {
+            if (gd.data.length < 1)  {
                 // figure has no pre-existing data. redirect to plot()
                 props.figure.data = extendData
                 return this.plot(props)
@@ -123,13 +123,24 @@ class ExtendableGraph extends Component {
             var x = [];
             var y = [];
             var trace_order = []
-            for (var i = 0; i < extendData.length; i++) {
+            for (var i = 0; i < gd.data.length; i++) {
                 trace_order.push(i)
                 x.push(extendData[i].x)
                 y.push(extendData[i].y)
             }
-            // console.log([x, y, trace_order])
-            return Plotly.extendTraces(id, {x: x, y: y}, trace_order)
+
+            if (extendData.length > gd.data.length) {
+                Plotly.extendTraces(id, {x: x, y: y}, trace_order).then(
+                    () => {
+                            // extendData contains more traces than the figure.
+                            // after extending, add the remaining traces to the figure
+                            return Plotly.addTraces(id, extendData.slice(gd.data.length, extendData.length))
+                    }
+                );
+            }
+            else {
+                return Plotly.extendTraces(id, {x: x, y: y}, trace_order)
+            }
         }
 
         return this.plot(props)
