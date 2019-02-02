@@ -1,6 +1,6 @@
 {
   "name": "dash_extendable_graph",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "plotly-dash custom component. Adds Plotly.extendTraces() support to dash_core_components.Graph()",
   "homepage": "https://github.com/bcliang/dash-extendable-graph",
   "main": "build/index.js",
