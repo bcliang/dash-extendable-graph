@@ -303,13 +303,17 @@ const graphPropTypes = {
     relayoutData: PropTypes.object,
 
     /**
-    * Data that should be appended to existing traces
+    * Data that should be appended to existing traces in the Graph figure
+    * Same format as the `data` array of the figure property.
     */
     extendData: PropTypes.array,
 
     /**
      * Plotly `figure` object. See schema:
      * https://plot.ly/javascript/reference
+     * Only supports `data` array and `layout` object.
+     * `config` is set separately by the `config` property,
+     * and `frames` is not supported.
      */
     figure: PropTypes.object,
 
