@@ -18,7 +18,7 @@ class Tests(IntegrationTests):
         pass
 
     # extending a trace works
-    def test_extend_trace(self):
+    def test_extend_then_add_trace(self):
         app = dash.Dash(__name__)
 
         app.scripts.config.serve_locally = True
