@@ -14,8 +14,12 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+debug.log
 
 # Development folders and files
+*.pyc
+.pytest_cache
+__pycache__
 public
 src
 scripts
