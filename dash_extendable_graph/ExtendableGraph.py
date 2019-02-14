@@ -21,9 +21,13 @@ data from the last point that was hovered over.
 - selectedData (dict; optional): Data from latest select event
 - relayoutData (dict; optional): Data from latest relayout event which occurs
 when the user zooms or pans on the plot
-- extendData (list; optional): Data that should be appended to existing traces
+- extendData (list; optional): Data that should be appended to existing traces in the Graph figure
+Same format as the `data` array of the figure property.
 - figure (dict; optional): Plotly `figure` object. See schema:
 https://plot.ly/javascript/reference
+Only supports `data` array and `layout` object.
+`config` is set separately by the `config` property,
+and `frames` is not supported.
 - style (dict; optional): Generic style overrides on the plot div
 - className (string; optional): className of the parent div
 - animate (boolean; optional): Beta: If true, animate between updates using
