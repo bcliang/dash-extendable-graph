@@ -110,7 +110,7 @@ class ExtendableGraph extends Component {
     }
 
     extend(props) {
-        const {id, extendData} = props;
+        const {id, extendData, traceIndices} = props;
         const gd = document.getElementById(id);
 
         if (extendData) {
@@ -303,10 +303,11 @@ const graphPropTypes = {
     relayoutData: PropTypes.object,
 
     /**
-    * Data that should be appended to existing traces in the Graph figure
-    * Same format as the `data` array of the figure property.
+    * Object representing data that should be appended to existing traces
+    * in the Graph.
+    * https://plot.ly/javascript/plotlyjs-function-reference/#plotlyextendtraces
     */
-    extendData: PropTypes.array,
+    extendData: PropTypes.object,
 
     /**
      * Plotly `figure` object. See schema:
