@@ -261,7 +261,9 @@ class ExtendableGraph extends Component {
           <div
               key={id}
               id={id}
-              data-dash-is-loading={loading_state && loading_state.is_loading}
+              data-dash-is-loading={
+                (loading_state && loading_state.is_loading) || undefined
+              }
               style={style}
               className={className}
           />
