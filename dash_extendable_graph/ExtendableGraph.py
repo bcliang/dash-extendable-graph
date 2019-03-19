@@ -11,18 +11,28 @@ Keyword arguments:
 - id (string; optional): The ID of this component, used to identify dash components
 in callbacks. The ID needs to be unique across all of the
 components in an app.
-- clickData (dict; optional): Data from latest click event
-- clickAnnotationData (dict; optional): Data from latest click annotation event
-- hoverData (dict; optional): Data from latest hover event
+- clickData (dict; optional): Data from latest click event. Read-only.
+- clickAnnotationData (dict; optional): Data from latest click annotation event. Read-only.
+- hoverData (dict; optional): Data from latest hover event. Read-only.
 - clear_on_unhover (boolean; optional): If True, `clear_on_unhover` will clear the `hoverData` property
 when the user "unhovers" from a point.
 If False, then the `hoverData` property will be equal to the
 data from the last point that was hovered over.
-- selectedData (dict; optional): Data from latest select event
+- selectedData (dict; optional): Data from latest select event. Read-only.
 - relayoutData (dict; optional): Data from latest relayout event which occurs
-when the user zooms or pans on the plot
-- extendData (list; optional): Data that should be appended to existing traces in the Graph figure
-Same format as the `data` array of the figure property.
+when the user zooms or pans on the plot or other
+layout-level edits. Has the form `{<attr string>: <value>}`
+describing the changes made. Read-only.
+- restyleData (list; optional): Data from latest restyle event which occurs
+when the user toggles a legend item, changes
+parcoords selections, or other trace-level edits.
+Has the form `[edits, indices]`, where `edits` is an object
+`{<attr string>: <value>}` describing the changes made,
+and `indices` is an array of trace indices that were edited.
+Read-only.
+- extendData (dict; optional): Object representing data that should be appended to existing traces
+in the Graph.
+https://plot.ly/javascript/plotlyjs-function-reference/#plotlyextendtraces
 - figure (dict; optional): Plotly `figure` object. See schema:
 https://plot.ly/javascript/reference
 Only supports `data` array and `layout` object.
@@ -95,12 +105,12 @@ Those keys have the following types:
   - prop_name (string; optional): Holds which property is loading
   - component_name (string; optional): Holds the name of the component that is loading"""
     @_explicitize_args
-    def __init__(self, id=Component.UNDEFINED, clickData=Component.UNDEFINED, clickAnnotationData=Component.UNDEFINED, hoverData=Component.UNDEFINED, clear_on_unhover=Component.UNDEFINED, selectedData=Component.UNDEFINED, relayoutData=Component.UNDEFINED, extendData=Component.UNDEFINED, figure=Component.UNDEFINED, style=Component.UNDEFINED, className=Component.UNDEFINED, animate=Component.UNDEFINED, animation_options=Component.UNDEFINED, config=Component.UNDEFINED, loading_state=Component.UNDEFINED, **kwargs):
-        self._prop_names = ['id', 'clickData', 'clickAnnotationData', 'hoverData', 'clear_on_unhover', 'selectedData', 'relayoutData', 'extendData', 'figure', 'style', 'className', 'animate', 'animation_options', 'config', 'loading_state']
+    def __init__(self, id=Component.UNDEFINED, clickData=Component.UNDEFINED, clickAnnotationData=Component.UNDEFINED, hoverData=Component.UNDEFINED, clear_on_unhover=Component.UNDEFINED, selectedData=Component.UNDEFINED, relayoutData=Component.UNDEFINED, restyleData=Component.UNDEFINED, extendData=Component.UNDEFINED, figure=Component.UNDEFINED, style=Component.UNDEFINED, className=Component.UNDEFINED, animate=Component.UNDEFINED, animation_options=Component.UNDEFINED, config=Component.UNDEFINED, loading_state=Component.UNDEFINED, **kwargs):
+        self._prop_names = ['id', 'clickData', 'clickAnnotationData', 'hoverData', 'clear_on_unhover', 'selectedData', 'relayoutData', 'restyleData', 'extendData', 'figure', 'style', 'className', 'animate', 'animation_options', 'config', 'loading_state']
         self._type = 'ExtendableGraph'
         self._namespace = 'dash_extendable_graph'
         self._valid_wildcard_attributes =            []
-        self.available_properties = ['id', 'clickData', 'clickAnnotationData', 'hoverData', 'clear_on_unhover', 'selectedData', 'relayoutData', 'extendData', 'figure', 'style', 'className', 'animate', 'animation_options', 'config', 'loading_state']
+        self.available_properties = ['id', 'clickData', 'clickAnnotationData', 'hoverData', 'clear_on_unhover', 'selectedData', 'relayoutData', 'restyleData', 'extendData', 'figure', 'style', 'className', 'animate', 'animation_options', 'config', 'loading_state']
         self.available_wildcard_properties =            []
 
         _explicit_args = kwargs.pop('_explicit_args')
@@ -113,26 +123,3 @@ Those keys have the following types:
                 raise TypeError(
                     'Required argument `' + k + '` was not specified.')
         super(ExtendableGraph, self).__init__(**args)
-
-    def __repr__(self):
-        if(any(getattr(self, c, None) is not None
-               for c in self._prop_names
-               if c is not self._prop_names[0])
-           or any(getattr(self, c, None) is not None
-                  for c in self.__dict__.keys()
-                  if any(c.startswith(wc_attr)
-                  for wc_attr in self._valid_wildcard_attributes))):
-            props_string = ', '.join([c+'='+repr(getattr(self, c, None))
-                                      for c in self._prop_names
-                                      if getattr(self, c, None) is not None])
-            wilds_string = ', '.join([c+'='+repr(getattr(self, c, None))
-                                      for c in self.__dict__.keys()
-                                      if any([c.startswith(wc_attr)
-                                      for wc_attr in
-                                      self._valid_wildcard_attributes])])
-            return ('ExtendableGraph(' + props_string +
-                   (', ' + wilds_string if wilds_string != '' else '') + ')')
-        else:
-            return (
-                'ExtendableGraph(' +
-                repr(getattr(self, self._prop_names[0], None)) + ')')
