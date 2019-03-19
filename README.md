@@ -106,6 +106,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md)
     The demo app is in `src/demo`
 4. Check out the sample Dash application using the component    
     ```bash
+    $ python setup.py install
     $ python usage.py
     ```
 
@@ -122,7 +123,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md)
 ### Create a production build and publish:
 
     ```bash
-    $ npm run build:all
+    $ npm run build
     $ rm -rf dist
     $ python setup.py sdist
     $ twine upload dist/*
