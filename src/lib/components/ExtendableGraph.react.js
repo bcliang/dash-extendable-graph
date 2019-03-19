@@ -46,7 +46,7 @@ const filterEventData = (gd, eventData, event) => {
             points[i] = pointData;
         }
         filteredEventData = {points};
-    } else if (event === 'relayout') {
+    } else if (event === 'relayout' || event === 'restyle') {
         /*
          * relayout shouldn't include any big objects
          * it will usually just contain the ranges of the axes like
@@ -110,40 +110,44 @@ class ExtendableGraph extends Component {
     }
 
     extend(props) {
-        const {id, extendData, traceIndices} = props;
+        const {id, extendData} = props;
         const gd = document.getElementById(id);
 
         if (extendData) {
-            if (gd.data.length < 1)  {
+            if (gd.data.length < 1) {
                 // figure has no pre-existing data. redirect to plot()
-                props.figure.data = extendData
-                return this.plot(props)
+                props.figure.data = extendData;
+                return this.plot(props);
             }
 
             var x = [];
             var y = [];
-            var trace_order = []
-            for (var i = 0; i < Math.min(gd.data.length, extendData.length); i++) {
-                trace_order.push(i)
-                x.push(extendData[i].x)
-                y.push(extendData[i].y)
+            var trace_order = [];
+            for (
+                var i = 0;
+                i < Math.min(gd.data.length, extendData.length);
+                i++
+            ) {
+                trace_order.push(i);
+                x.push(extendData[i].x);
+                y.push(extendData[i].y);
             }
 
             if (extendData.length > gd.data.length) {
-                Plotly.extendTraces(id, {x: x, y: y}, trace_order).then(
-                    () => {
-                            // extendData contains more traces than the figure.
-                            // after extending, add the remaining traces to the figure
-                            return Plotly.addTraces(id, extendData.slice(gd.data.length, extendData.length))
-                    }
-                );
-            }
-            else {
-                return Plotly.extendTraces(id, {x: x, y: y}, trace_order)
+                Plotly.extendTraces(id, {x: x, y: y}, trace_order).then(() => {
+                    // extendData contains more traces than the figure.
+                    // after extending, add the remaining traces to the figure
+                    return Plotly.addTraces(
+                        id,
+                        extendData.slice(gd.data.length, extendData.length)
+                    );
+                });
+            } else {
+                return Plotly.extendTraces(id, {x: x, y: y}, trace_order);
             }
         }
 
-        return this.plot(props)
+        return this.plot(props);
     }
 
     bindEvents() {
@@ -197,6 +201,12 @@ class ExtendableGraph extends Component {
                 }
             }
         });
+        gd.on('plotly_restyle', eventData => {
+            const restyleData = filterEventData(gd, eventData, 'restyle');
+            if (!isNil(restyleData)) {
+                setProps({restyleData});
+            }
+        });
         gd.on('plotly_unhover', () => {
             if (clear_on_unhover) {
                 if (setProps) {
@@ -242,9 +252,10 @@ class ExtendableGraph extends Component {
             this.plot(nextProps);
         }
 
-        const extendDataChanged = this.props.extendData !== nextProps.extendData;
+        const extendDataChanged =
+            this.props.extendData !== nextProps.extendData;
         if (extendDataChanged) {
-          this.extend(nextProps)
+            this.extend(nextProps);
         }
     }
 
@@ -258,15 +269,15 @@ class ExtendableGraph extends Component {
         const {className, id, style, loading_state} = this.props;
 
         return (
-          <div
-              key={id}
-              id={id}
-              data-dash-is-loading={
-                (loading_state && loading_state.is_loading) || undefined
-              }
-              style={style}
-              className={className}
-          />
+            <div
+                key={id}
+                id={id}
+                data-dash-is-loading={
+                    (loading_state && loading_state.is_loading) || undefined
+                }
+                style={style}
+                className={className}
+            />
         );
     }
 }
@@ -279,17 +290,17 @@ const graphPropTypes = {
      */
     id: PropTypes.string,
     /**
-     * Data from latest click event
+     * Data from latest click event. Read-only.
      */
     clickData: PropTypes.object,
 
     /**
-     * Data from latest click annotation event
+     * Data from latest click annotation event. Read-only.
      */
     clickAnnotationData: PropTypes.object,
 
     /**
-     * Data from latest hover event
+     * Data from latest hover event. Read-only.
      */
     hoverData: PropTypes.object,
 
@@ -302,21 +313,34 @@ const graphPropTypes = {
     clear_on_unhover: PropTypes.bool,
 
     /**
-     * Data from latest select event
+     * Data from latest select event. Read-only.
      */
     selectedData: PropTypes.object,
 
     /**
      * Data from latest relayout event which occurs
-     * when the user zooms or pans on the plot
+     * when the user zooms or pans on the plot or other
+     * layout-level edits. Has the form `{<attr string>: <value>}`
+     * describing the changes made. Read-only.
      */
     relayoutData: PropTypes.object,
 
     /**
-    * Object representing data that should be appended to existing traces
-    * in the Graph.
-    * https://plot.ly/javascript/plotlyjs-function-reference/#plotlyextendtraces
-    */
+     * Data from latest restyle event which occurs
+     * when the user toggles a legend item, changes
+     * parcoords selections, or other trace-level edits.
+     * Has the form `[edits, indices]`, where `edits` is an object
+     * `{<attr string>: <value>}` describing the changes made,
+     * and `indices` is an array of trace indices that were edited.
+     * Read-only.
+     */
+    restyleData: PropTypes.array,
+
+    /**
+     * Object representing data that should be appended to existing traces
+     * in the Graph.
+     * https://plot.ly/javascript/plotlyjs-function-reference/#plotlyextendtraces
+     */
     extendData: PropTypes.object,
 
     /**
@@ -532,8 +556,8 @@ const graphPropTypes = {
     setProps: PropTypes.func,
 
     /**
-    * Object that holds the loading state object coming from dash-renderer
-    */
+     * Object that holds the loading state object coming from dash-renderer
+     */
     loading_state: PropTypes.shape({
         /**
          * Determines if the component is loading or not
@@ -557,6 +581,7 @@ const graphDefaultProps = {
     selectedData: null,
     relayoutData: null,
     extendData: null,
+    restyleData: null,
     figure: {data: [], layout: {}},
     animate: false,
     animation_options: {
