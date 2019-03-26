@@ -112,6 +112,7 @@ class ExtendableGraph extends Component {
     extend(props) {
         const {id, extendData} = props;
         const gd = document.getElementById(id);
+        let updateData, traceIndices, maxPoints, initialTraceIndices;
 
         if (extendData) {
             if (gd.data.length < 1) {
@@ -120,30 +121,80 @@ class ExtendableGraph extends Component {
                 return this.plot(props);
             }
 
-            var x = [];
-            var y = [];
-            var trace_order = [];
-            for (
-                var i = 0;
-                i < Math.min(gd.data.length, extendData.length);
-                i++
-            ) {
-                trace_order.push(i);
-                x.push(extendData[i].x);
-                y.push(extendData[i].y);
+            if (Array.isArray(extendData) && Array.isArray(extendData[0])) {
+                [updateData, traceIndices, maxPoints] = extendData;
+            } else {
+                updateData = extendData;
             }
 
-            if (extendData.length > gd.data.length) {
-                Plotly.extendTraces(id, {x: x, y: y}, trace_order).then(() => {
-                    // extendData contains more traces than the figure.
-                    // after extending, add the remaining traces to the figure
-                    return Plotly.addTraces(
-                        id,
-                        extendData.slice(gd.data.length, extendData.length)
-                    );
+            if (!traceIndices) {
+                traceIndices = Array.from(Array(updateData.length).keys());
+            }
+
+            function createDataObject(data) {
+                const ret = {};
+                if (data.length > 0) {
+                    const pluck = (arr, key) => arr.map(o => o[key]);
+                    const dataprops = Object.keys(data[0]);
+                    for (let i = 0; i < dataprops.length; i++) {
+                        ret[dataprops[i]] = pluck(data, dataprops[i]);
+                    }
+                }
+                return ret;
+            }
+
+            if (Math.max(...traceIndices) > gd.data.length - 1) {
+                const sortIndices = (arr, compare) =>
+                    arr
+                        .map((item, index) => ({item, index}))
+                        .sort(
+                            (a, b) =>
+                                compare(a.item, b.item) || a.index - b.index
+                        )
+                        .map(({index}) => index);
+
+                const indices = sortIndices(traceIndices, (a, b) => a - b);
+                updateData = indices.map(i => updateData[i]);
+                traceIndices = indices.map(i => traceIndices[i]);
+
+                initialTraceIndices = traceIndices.filter(function(item) {
+                    return item < gd.data.length;
                 });
             } else {
-                return Plotly.extendTraces(id, {x: x, y: y}, trace_order);
+                initialTraceIndices = traceIndices;
+            }
+
+            const updateObject = createDataObject(
+                updateData.slice(0, initialTraceIndices.length)
+            );
+
+            if (Math.max(...traceIndices) > gd.data.length - 1) {
+                if (initialTraceIndices.length > 0) {
+                    // extend any traces that already exist
+                    Plotly.extendTraces(
+                        id,
+                        updateObject,
+                        initialTraceIndices,
+                        maxPoints
+                    ).then(() => {
+                        // add additional traces that didn't exist
+                        return Plotly.addTraces(
+                            id,
+                            updateData.slice(initialTraceIndices.length)
+                        );
+                    });
+                } else {
+                    // none of the new data belongs to existing traces. add new ones.
+                    return Plotly.addTraces(id, updateData);
+                }
+            } else {
+                // extend existing traces with provided data
+                return Plotly.extendTraces(
+                    id,
+                    updateObject,
+                    traceIndices,
+                    maxPoints
+                );
             }
         }
 
