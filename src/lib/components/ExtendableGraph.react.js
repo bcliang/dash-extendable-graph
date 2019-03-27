@@ -112,7 +112,7 @@ class ExtendableGraph extends Component {
     extend(props) {
         const {id, extendData} = props;
         const gd = document.getElementById(id);
-        let updateData, traceIndices, maxPoints, initialTraceIndices;
+        let updateData, traceIndices, maxPoints;
 
         if (extendData) {
             if (gd.data.length < 1) {
@@ -132,69 +132,37 @@ class ExtendableGraph extends Component {
             }
 
             function createDataObject(data) {
-                const ret = {};
-                if (data.length > 0) {
-                    const pluck = (arr, key) => arr.map(o => o[key]);
-                    const dataprops = Object.keys(data[0]);
-                    for (let i = 0; i < dataprops.length; i++) {
-                        ret[dataprops[i]] = pluck(data, dataprops[i]);
-                    }
+                const dataprops = Object.keys(data);
+                for (let i = 0; i < dataprops.length; i++) {
+                    data[dataprops[i]] = [data[dataprops[i]]];
                 }
-                return ret;
+                return data;
             }
 
-            if (Math.max(...traceIndices) > gd.data.length - 1) {
-                const sortIndices = (arr, compare) =>
-                    arr
-                        .map((item, index) => ({item, index}))
-                        .sort(
-                            (a, b) =>
-                                compare(a.item, b.item) || a.index - b.index
-                        )
-                        .map(({index}) => index);
-
-                const indices = sortIndices(traceIndices, (a, b) => a - b);
-                updateData = indices.map(i => updateData[i]);
-                traceIndices = indices.map(i => traceIndices[i]);
-
-                initialTraceIndices = traceIndices.filter(function(item) {
-                    return item < gd.data.length;
-                });
-            } else {
-                initialTraceIndices = traceIndices;
-            }
-
-            const updateObject = createDataObject(
-                updateData.slice(0, initialTraceIndices.length)
-            );
-
-            if (Math.max(...traceIndices) > gd.data.length - 1) {
-                if (initialTraceIndices.length > 0) {
-                    // extend any traces that already exist
-                    Plotly.extendTraces(
-                        id,
-                        updateObject,
-                        initialTraceIndices,
-                        maxPoints
-                    ).then(() => {
-                        // add additional traces that didn't exist
-                        return Plotly.addTraces(
+            for (const [i, value] of updateData.entries()) {
+                const updateObject = createDataObject(value);
+                if (i < updateData.length - 1) {
+                    if (traceIndices[i] < gd.data.length) {
+                        Plotly.extendTraces(
                             id,
-                            updateData.slice(initialTraceIndices.length)
+                            updateObject,
+                            [traceIndices[i]],
+                            maxPoints
                         );
-                    });
+                    } else {
+                        Plotly.addTraces(id, value);
+                    }
                 } else {
-                    // none of the new data belongs to existing traces. add new ones.
-                    return Plotly.addTraces(id, updateData);
+                    if (traceIndices[i] < gd.data.length) {
+                        return Plotly.extendTraces(
+                            id,
+                            updateObject,
+                            [traceIndices[i]],
+                            maxPoints
+                        );
+                    }
+                    return Plotly.addTraces(id, value);
                 }
-            } else {
-                // extend existing traces with provided data
-                return Plotly.extendTraces(
-                    id,
-                    updateObject,
-                    traceIndices,
-                    maxPoints
-                );
             }
         }
 
