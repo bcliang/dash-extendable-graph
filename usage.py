@@ -11,35 +11,47 @@ app.scripts.config.serve_locally = True
 app.css.config.serve_locally = True
 
 app.layout = html.Div([
-    deg.ExtendableGraph(
-        id='extendablegraph_example1',
-        figure=dict(
-            data=[{'x': [0, 1, 2, 3, 4], 'y': [0, .5, 1, .5, 0]}],
-        )
-    ),
-    deg.ExtendableGraph(
-        id='extendablegraph_example2',
-        figure=dict(
-            data=[{'x': [0, 1], 'y': [0, .5],
-                   'mode':'lines+markers'},
-                  {'x': [0, 1, 2, 3, 4, 5], 'y': [1, .9, .8, .7, .6, .5]}],
-        )
-    ),
-    deg.ExtendableGraph(
-        id='extendablegraph_example3',
-        figure=dict(
-            data=[{'x': [0, 1], 'y': [0, .5]},
-                  {'x': [0, 1, 2, 3, 4, 5], 'y': [1, .9, .8, .7, .6, .5],
-                   'mode':'lines+markers'
-                   }],
-        )
-    ),
-    deg.ExtendableGraph(
-        id='extendablegraph_example4',
-        figure=dict(
-            data=[{'x': [0, 1], 'y': [0, .5]}],
-        )
-    ),
+    html.Div([
+        html.P('extend trace 0, add+extend trace 1'),
+        deg.ExtendableGraph(
+            id='extendablegraph_example1',
+            figure=dict(
+                data=[{'x': [0, 1, 2, 3, 4], 'y': [0, .5, 1, .5, 0]}],
+            )
+        ),
+    ]),
+    html.Div([
+        html.P('extend only trace 0'),
+        deg.ExtendableGraph(
+            id='extendablegraph_example2',
+            figure=dict(
+                data=[{'x': [0, 1], 'y': [0, .5],
+                       'mode':'lines+markers'},
+                      {'x': [0, 1, 2, 3, 4, 5], 'y': [1, .9, .8, .7, .6, .5]}],
+            )
+        ),
+    ]),
+    html.Div([
+        html.P('extend only trace 1 (specify via traceIndices)'),
+        deg.ExtendableGraph(
+            id='extendablegraph_example3',
+            figure=dict(
+                data=[{'x': [0, 1], 'y': [0, .5]},
+                      {'x': [0, 1, 2, 3, 4, 5], 'y': [1, .9, .8, .7, .6, .5],
+                       'mode':'lines+markers'
+                       }],
+            )
+        ),
+    ]),
+    html.Div([
+        html.P('add+extend trace 1'),
+        deg.ExtendableGraph(
+            id='extendablegraph_example4',
+            figure=dict(
+                data=[{'x': [0, 1], 'y': [0, .5]}],
+            )
+        ),
+    ]),
     dcc.Interval(
         id='interval_extendablegraph_update',
         interval=1000,

@@ -4,7 +4,7 @@
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/dash-extendable-graph.svg)
 [![PyPI - License](https://img.shields.io/pypi/l/dash-extendable-graph.svg)](./LICENSE)
 
-dash-extendable-graph is a Dash component library. This library contains a single component: `ExtendableGraph`. The component is a fork of the Graph() component of [dash-core-components](https://github.com/plotly/dash-core-components) (v 0.43.1), with an extra property (`extendData`) that allows Graph traces to be drawn through `Plotly.extendTraces()` instead of `Plotly.react()`.
+dash-extendable-graph is a Dash component library. This library contains a single component: `ExtendableGraph`. The component is a fork of the Graph() component of [dash-core-components](https://github.com/plotly/dash-core-components) (v 0.45.0), with an extra property (`extendData`) that allows Graph traces to be drawn through `Plotly.extendTraces()` instead of `Plotly.react()`.
 
 Note: plotly.js is required. However, the library is NOT explicitly listed in `MANIFEST.in` or in `dash_extendable_graph\__init__.py` as a way to reduce bundle size. Plotly.js is already distributed with the dash-core-components package, and most projects will import dcc as well as dash-extendable-graph.
 
@@ -24,6 +24,18 @@ $ pip install dash-extendable-graph
 
 ## Usage
 
+General examples may be found in `usage.py`
+
+### extendData keys
+
+1. `updateData` [array]: array of dictionaries containing trace data (e.g `dict(x=[1], y=[1])`)
+2. `traceIndices` [array, optional]: identify the traces that should be extended. If the specified trace index does not exist, the corresponding trace shall be appended to the figure.
+3. `maxPoints` [array, optional]: define the maximum number of points to plot in the figure (per trace).
+
+### Code
+
+Extend a trace once per second, limited to 100 maximum points.
+
 ```python
 import dash_extendable_graph as deg
 import dash
@@ -40,17 +52,6 @@ app.css.config.serve_locally = True
 app.layout = html.Div([
     deg.ExtendableGraph(
         id='extendablegraph_example',
-        config={'showAxisDragHandles': True,
-                'showAxisRangeEntryBoxes': True,
-                'modeBarButtonsToRemove': [
-                    'sendDataToCloud',
-                    'lasso2d',
-                    'autoScale2d',
-                    'hoverClosestCartesian',
-                    'hoverCompareCartesian',
-                    'toggleSpikelines'],
-                'displaylogo': False,
-                },
         figure=dict(
             data=[{'x': [0],
                    'y': [0],
@@ -73,7 +74,7 @@ app.layout = html.Div([
 def update_extendData(n_intervals, existing):
     x_new = existing['data'][0]['x'][-1] + 1
     y_new = random.random()
-    return [dict(x=[x_new], y=[y_new])]
+    return [dict(x=[x_new], y=[y_new])], [0], 100
 
 
 if __name__ == '__main__':
@@ -88,51 +89,43 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md)
 ## Local Installation
 
 1. Dependencies
-    ```bash
-    $ npm install
-    $ virtualenv venv
-    $ . venv/bin/activate
-    $ pip install -r requirements.txt
-    $ pip install -r tests/requirements.txt
-    ```
+```bash
+$ npm install
+$ virtualenv venv
+$ . venv/bin/activate
+$ pip install -r requirements.txt
+$ pip install -r tests/requirements.txt
+```
 2. Build
-     ```bash
-     $ npm run build:all
-     ```
+```bash
+$ npm run build:all
+```
 3. Check out the component via component-playground
-    ```bash
-    $ npm run start
-    ```
+```bash
+$ npm run start
+```
     The demo app is in `src/demo`
 4. Check out the sample Dash application using the component    
-    ```bash
-    $ python setup.py install
-    $ python usage.py
-    ```
+```bash
+$ python setup.py install
+$ python usage.py
+```
 
 ## Tests
-- Write tests for your component.
-    - A sample test is available in `tests/test_usage.py`, it will load `usage.py` and you can then automate interactions with selenium.
-    - Run the tests with `$ pytest tests`.
-    - The Dash team uses these types of integration tests extensively. Browse the Dash component code on GitHub for more examples of testing (e.g. https://github.com/plotly/dash-core-components)
-- Add custom styles to your component by putting your custom CSS files into your distribution folder (`dash_extendable_graph`).
-    - Make sure that they are referenced in `MANIFEST.in` so that they get properly included when you're ready to publish your component.
-    - Make sure the stylesheets are added to the `_css_dist` dict in `dash_extendable_graph/__init__.py` so dash will serve them automatically when the component suite is requested.
-- [Review your code](./review_checklist.md)
+
+- Run the tests with `$pytest tests`
 
 ### Create a production build and publish:
 
-    ```bash
-    $ npm run build
-    $ rm -rf dist
-    $ python setup.py sdist
-    $ twine upload dist/*
-    $ npm publish
-    ```
+```bash
+$ npm run build
+$ rm -rf dist
+$ python setup.py sdist bdist_wheel
+$ twine upload dist/*
+$ npm publish
+```
 
 Test your tarball by copying it into a new environment and installing it locally:
-    ```
-    $ pip install dash_extendable_graph-X.X.X.tar.gz
-    ```
-
-_Publishing your component to NPM will make the JavaScript bundles available on the unpkg CDN. By default, Dash servers the component library's CSS and JS from the remote unpkg CDN, so if you haven't published the component package to NPM you'll need to set the `serve_locally` flags to `True` (unless you choose `False` on `publish_on_npm`). We will eventually make `serve_locally=True` the default, [follow our progress in this issue](https://github.com/plotly/dash/issues/284)._
+```bash
+$ pip install dash_extendable_graph-X.X.X.tar.gz
+```
