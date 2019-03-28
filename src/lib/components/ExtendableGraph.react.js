@@ -133,10 +133,11 @@ class ExtendableGraph extends Component {
 
             function createDataObject(data) {
                 const dataprops = Object.keys(data);
+                const ret = {};
                 for (let i = 0; i < dataprops.length; i++) {
-                    data[dataprops[i]] = [data[dataprops[i]]];
+                    ret[dataprops[i]] = [data[dataprops[i]]];
                 }
-                return data;
+                return ret;
             }
 
             for (const [i, value] of updateData.entries()) {
