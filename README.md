@@ -28,9 +28,11 @@ General examples may be found in `usage.py`
 
 ### extendData keys
 
-1. `updateData` [array]: array of dictionaries containing trace data (e.g `dict(x=[1], y=[1])`)
-2. `traceIndices` [array, optional]: identify the traces that should be extended. If the specified trace index does not exist, the corresponding trace shall be appended to the figure.
-3. `maxPoints` [array, optional]: define the maximum number of points to plot in the figure (per trace).
+1. `updateData` [list]: a list of dictionaries, each containing representing trace data (e.g `dict(x=[1], y=[1])`)
+2. `traceIndices` [list, optional]: identify the traces that should be extended. If the specified trace index does not exist, the corresponding trace shall be appended to the figure.
+3. `maxPoints` [number, optional]: define the maximum number of points to plot in the figure (per trace).
+
+Based on the [`Plotly.extendTraces()` api](https://github.com/plotly/plotly.js/blob/master/src/plot_api/plot_api.js#L979).
 
 ### Code
 
