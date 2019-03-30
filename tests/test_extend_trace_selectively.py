@@ -18,57 +18,51 @@ class Tests(IntegrationTests):
         pass
 
     # extending a trace works
-    def test_extend_trace(self):
+    def test_extend_trace_selectively(self):
         app = dash.Dash(__name__)
 
         app.scripts.config.serve_locally = True
         app.css.config.serve_locally = True
         app.layout = html.Div([
-            deg.ExtendableGraph(
-                id='trace_will_extend',
-                config={'displaylogo': False},
-                figure=dict(
-                    data=[{'x': [0, 1, 2, 3, 4],
-                           'y': [0, .5, 1, .5, 0]
-                           }],
-                )
-            ),
+            deg.ExtendableGraph(id='extend_trace_selectively',
+                                figure=dict(data=[
+                                    dict(y=[0]),
+                                    dict(y=[1]),
+                                ])),
             html.Div(id='output'),
             dcc.Interval(
                 id='interval_extendablegraph_update',
-                interval=10,
+                interval=100,
                 n_intervals=0,
                 max_intervals=1)
         ])
 
-        @app.callback(Output('trace_will_extend', 'extendData'),
-                      [Input('interval_extendablegraph_update', 'n_intervals')])
-        def trace_will_extend(n_intervals):
+        @app.callback(Output('extend_trace_selectively', 'extendData'),
+                      [Input('interval_extendablegraph_update', 'n_intervals')],
+                      [State('extend_trace_selectively', 'figure')])
+        def trace_will_extend_selectively(n_intervals, figure):
             if n_intervals is None or n_intervals < 1:
                 raise PreventUpdate
 
-            x_new = [5, 6, 7, 8, 9]
-            y_new = [.1, .2, .3, .4, .5]
-            return [dict(x=x_new, y=y_new)]
+            return [dict(y=[2])], [1]
 
         @app.callback(Output('output', 'children'),
-                      [Input('trace_will_extend', 'extendData')],
-                      [State('trace_will_extend', 'figure')])
+                      [Input('extend_trace_selectively', 'extendData')],
+                      [State('extend_trace_selectively', 'figure')])
         def display_data(trigger, figure):
-            return json.dumps(figure['data'][0])
+            if figure is None:
+                raise PreventUpdate
+
+            return json.dumps(figure['data'])
 
         self.startServer(app)
 
         graph = wait_for.wait_for_element_by_css_selector(
-            self.driver, '#trace_will_extend')
+            self.driver, '#extend_trace_selectively')
 
         comparison = json.dumps(
-            dict(
-                x=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-                y=[0, .5, 1, .5, 0, .1, .2, .3, .4, .5]
-            )
+            [dict(y=[0]),
+             dict(y=[1, 2])]
         )
 
         output = wait_for.wait_for_text_to_equal(self.driver, '#output', comparison)
-        #wait_for._wait_for(self.driver, comparison == output.text, timeout=10)
-        #assert output.text == comparison
