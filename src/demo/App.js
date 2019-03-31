@@ -1,9 +1,8 @@
 /* eslint no-magic-numbers: 0 */
 import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
-import Playground from 'component-playground'
-import { ExtendableGraph } from '../lib';
-
+import Playground from 'component-playground';
+import {ExtendableGraph} from '../lib';
 
 const GraphExample = `const properties = {
     animate: true,
@@ -39,32 +38,35 @@ class Controller extends Component {
         </div>);
     }
 }
-ReactDOM.render(<Controller/>, mountNode);`
+ReactDOM.render(<Controller/>, mountNode);`;
 
-const examples = [
-    {name: 'ExtendableGraph', code: GraphExample},
-];
+const examples = [{name: 'ExtendableGraph', code: GraphExample}];
 
 class App extends Component {
     render() {
         return (
-            <div style={{'fontFamily': 'Sans-Serif'}}>
+            <div style={{fontFamily: 'Sans-Serif'}}>
                 <h1>ExtendableGraph Demo</h1>
 
-                {examples.map((example, index) =>
+                {examples.map((example, index) => (
                     <div key={index}>
-                        <div style={{'marginBottom': 150}}>
+                        <div style={{marginBottom: 150}}>
                             <h3>{example.name}</h3>
                             <Playground
                                 codeText={example.code}
-                                scope={{Component, React, ReactDOM, ExtendableGraph}}
+                                scope={{
+                                    Component,
+                                    React,
+                                    ReactDOM,
+                                    ExtendableGraph,
+                                }}
                                 noRender={false}
                                 theme={'xq-light'}
                             />
                         </div>
-                        <hr style={{color: 'lightgrey'}}/>
+                        <hr style={{color: 'lightgrey'}} />
                     </div>
-                    )}
+                ))}
             </div>
         );
     }
