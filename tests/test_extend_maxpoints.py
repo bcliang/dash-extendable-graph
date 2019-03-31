@@ -1,5 +1,4 @@
 from pytest_dash import (wait_for)
-#from pytest_dash.application_runners import (import_app)
 from .IntegrationTests import IntegrationTests
 from multiprocessing import Value
 

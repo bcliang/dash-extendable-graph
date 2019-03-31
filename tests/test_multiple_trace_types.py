@@ -1,5 +1,4 @@
 from pytest_dash import (wait_for)
-#from pytest_dash.application_runners import (import_app)
 from .IntegrationTests import IntegrationTests
 from multiprocessing import Value
 
@@ -63,5 +62,3 @@ class Tests(IntegrationTests):
         )
 
         output = wait_for.wait_for_text_to_equal(self.driver, '#output', comparison)
-        #wait_for._wait_for(self.driver, comparison == output.text, timeout=10)
-        #assert output.text == comparison
