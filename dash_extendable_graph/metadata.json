@@ -152,12 +152,17 @@
           "value": {
             "staticPlot": {
               "name": "bool",
-              "description": "no interactivity, for export or image generation",
+              "description": "No interactivity, for export or image generation",
+              "required": false
+            },
+            "plotlyServerURL": {
+              "name": "string",
+              "description": "Base URL for a Plotly cloud instance, if `showSendToCloud` is enabled",
               "required": false
             },
             "editable": {
               "name": "bool",
-              "description": "we can edit titles, move annotations, etc - sets all pieces of `edits`\r\nunless a separate `edits` config item overrides individual parts",
+              "description": "We can edit titles, move annotations, etc - sets all pieces of `edits`\r\nunless a separate `edits` config item overrides individual parts",
               "required": false
             },
             "edits": {
@@ -170,7 +175,7 @@
                 },
                 "annotationTail": {
                   "name": "bool",
-                  "description": "just for annotations with arrows, change the length and direction of the arrow",
+                  "description": "Just for annotations with arrows, change the length and direction of the arrow",
                   "required": false
                 },
                 "annotationText": {
@@ -195,7 +200,7 @@
                 },
                 "legendText": {
                   "name": "bool",
-                  "description": "edit the trace name fields from the legend",
+                  "description": "Edit the trace name fields from the legend",
                   "required": false
                 },
                 "shapePosition": {
@@ -208,7 +213,7 @@
                   "required": false
                 }
               },
-              "description": "a set of editable properties",
+              "description": "A set of editable properties",
               "required": false
             },
             "autosizable": {
@@ -216,24 +221,29 @@
               "description": "DO autosize once regardless of layout.autosize\r\n(use default width or height values otherwise)",
               "required": false
             },
+            "responsive": {
+              "name": "bool",
+              "description": "Whether to change layout size when the window size changes",
+              "required": false
+            },
             "queueLength": {
               "name": "number",
-              "description": "set the length of the undo/redo queue",
+              "description": "Set the length of the undo/redo queue",
               "required": false
             },
             "fillFrame": {
               "name": "bool",
-              "description": "if we DO autosize, do we fill the container or the screen?",
+              "description": "If we DO autosize, do we fill the container or the screen?",
               "required": false
             },
             "frameMargins": {
               "name": "number",
-              "description": "if we DO autosize, set the frame margins in percents of plot size",
+              "description": "If we DO autosize, set the frame margins in percents of plot size",
               "required": false
             },
             "scrollZoom": {
               "name": "bool",
-              "description": "mousewheel or two-finger scroll zooms the plot",
+              "description": "Mousewheel or two-finger scroll zooms the plot",
               "required": false
             },
             "doubleClick": {
@@ -256,37 +266,37 @@
                   "computed": false
                 }
               ],
-              "description": "double click interaction (false, 'reset', 'autosize' or 'reset+autosize')",
+              "description": "Double click interaction (false, 'reset', 'autosize' or 'reset+autosize')",
               "required": false
             },
             "showTips": {
               "name": "bool",
-              "description": "new users see some hints about interactivity",
+              "description": "New users see some hints about interactivity",
               "required": false
             },
             "showAxisDragHandles": {
               "name": "bool",
-              "description": "enable axis pan/zoom drag handles",
+              "description": "Enable axis pan/zoom drag handles",
               "required": false
             },
             "showAxisRangeEntryBoxes": {
               "name": "bool",
-              "description": "enable direct range entry at the pan/zoom drag points\r\n(drag handles must be enabled above)",
+              "description": "Enable direct range entry at the pan/zoom drag points\r\n(drag handles must be enabled above)",
               "required": false
             },
             "showLink": {
               "name": "bool",
-              "description": "link to open this plot in plotly",
+              "description": "Link to open this plot in plotly",
               "required": false
             },
             "sendData": {
               "name": "bool",
-              "description": "if we show a link, does it contain data or just link to a plotly file?",
+              "description": "If we show a link, does it contain data or just link to a plotly file?",
               "required": false
             },
             "linkText": {
               "name": "string",
-              "description": "text appearing in the sendData link",
+              "description": "Text appearing in the sendData link",
               "required": false
             },
             "displayModeBar": {
@@ -305,32 +315,92 @@
                   "computed": false
                 }
               ],
-              "description": "display the mode bar (true, false, or 'hover')",
+              "description": "Display the mode bar (true, false, or 'hover')",
+              "required": false
+            },
+            "showSendToCloud": {
+              "name": "bool",
+              "description": "Should we include a modebar button to send this data to a\r\nPlotly Cloud instance, linked by `plotlyServerURL`.\r\nBy default this is false.",
               "required": false
             },
             "modeBarButtonsToRemove": {
               "name": "array",
-              "description": "remove mode bar button by name.\r\nAll modebar button names at https://github.com/plotly/plotly.js/blob/master/src/components/modebar/buttons.js\r\nCommon names include:\r\n - sendDataToCloud\r\n- (2D): zoom2d, pan2d, select2d, lasso2d, zoomIn2d, zoomOut2d, autoScale2d, resetScale2d\r\n- (Cartesian): hoverClosestCartesian, hoverCompareCartesian\r\n- (3D): zoom3d, pan3d, orbitRotation, tableRotation, handleDrag3d, resetCameraDefault3d, resetCameraLastSave3d, hoverClosest3d\r\n- (Geo): zoomInGeo, zoomOutGeo, resetGeo, hoverClosestGeo\r\n- hoverClosestGl2d, hoverClosestPie, toggleHover, resetViews",
+              "description": "Remove mode bar button by name.\r\nAll modebar button names at https://github.com/plotly/plotly.js/blob/master/src/components/modebar/buttons.js\r\nCommon names include:\r\n - sendDataToCloud\r\n- (2D): zoom2d, pan2d, select2d, lasso2d, zoomIn2d, zoomOut2d, autoScale2d, resetScale2d\r\n- (Cartesian): hoverClosestCartesian, hoverCompareCartesian\r\n- (3D): zoom3d, pan3d, orbitRotation, tableRotation, handleDrag3d, resetCameraDefault3d, resetCameraLastSave3d, hoverClosest3d\r\n- (Geo): zoomInGeo, zoomOutGeo, resetGeo, hoverClosestGeo\r\n- hoverClosestGl2d, hoverClosestPie, toggleHover, resetViews",
               "required": false
             },
             "modeBarButtonsToAdd": {
               "name": "array",
-              "description": "add mode bar button using config objects",
+              "description": "Add mode bar button using config objects",
               "required": false
             },
             "modeBarButtons": {
               "name": "any",
-              "description": "fully custom mode bar buttons as nested array,\r\nwhere the outer arrays represents button groups, and\r\nthe inner arrays have buttons config objects or names of default buttons",
+              "description": "Fully custom mode bar buttons as nested array,\r\nwhere the outer arrays represents button groups, and\r\nthe inner arrays have buttons config objects or names of default buttons",
+              "required": false
+            },
+            "toImageButtonOptions": {
+              "name": "shape",
+              "value": {
+                "format": {
+                  "name": "enum",
+                  "value": [
+                    {
+                      "value": "'jpeg'",
+                      "computed": false
+                    },
+                    {
+                      "value": "'png'",
+                      "computed": false
+                    },
+                    {
+                      "value": "'webp'",
+                      "computed": false
+                    },
+                    {
+                      "value": "'svg'",
+                      "computed": false
+                    }
+                  ],
+                  "description": "The file format to create",
+                  "required": false
+                },
+                "filename": {
+                  "name": "string",
+                  "description": "The name given to the downloaded file",
+                  "required": false
+                },
+                "width": {
+                  "name": "number",
+                  "description": "Width of the downloaded file, in px",
+                  "required": false
+                },
+                "height": {
+                  "name": "number",
+                  "description": "Height of the downloaded file, in px",
+                  "required": false
+                },
+                "scale": {
+                  "name": "number",
+                  "description": "Extra resolution to give the file after\r\nrendering it with the given width and height",
+                  "required": false
+                }
+              },
+              "description": "Modifications to how the toImage modebar button works",
               "required": false
             },
             "displaylogo": {
               "name": "bool",
-              "description": "add the plotly logo on the end of the mode bar",
+              "description": "Add the plotly logo on the end of the mode bar",
+              "required": false
+            },
+            "watermark": {
+              "name": "bool",
+              "description": "Add the plotly logo even with no modebar",
               "required": false
             },
             "plotGlPixelRatio": {
               "name": "number",
-              "description": "increase the pixel ratio for Gl plot images",
+              "description": "Increase the pixel ratio for Gl plot images",
               "required": false
             },
             "topojsonURL": {
@@ -342,13 +412,23 @@
               "name": "any",
               "description": "Mapbox access token (required to plot mapbox trace types)\r\nIf using an Mapbox Atlas server, set this option to '',\r\nso that plotly.js won't attempt to authenticate to the public Mapbox server.",
               "required": false
+            },
+            "locale": {
+              "name": "string",
+              "description": "The locale to use. Locales may be provided with the plot\r\n(`locales` below) or by loading them on the page, see:\r\nhttps://github.com/plotly/plotly.js/blob/master/dist/README.md#to-include-localization",
+              "required": false
+            },
+            "locales": {
+              "name": "object",
+              "description": "Localization definitions, if you choose to provide them with the\r\nplot rather than registering them globally.",
+              "required": false
             }
           }
         },
         "required": false,
         "description": "Plotly.js config options.\r\nSee https://plot.ly/javascript/configuration-options/\r\nfor more info.",
         "defaultValue": {
-          "value": "{\r\n    staticPlot: false,\r\n    editable: false,\r\n    edits: {\r\n        annotationPosition: false,\r\n        annotationTail: false,\r\n        annotationText: false,\r\n        axisTitleText: false,\r\n        colorbarPosition: false,\r\n        colorbarTitleText: false,\r\n        legendPosition: false,\r\n        legendText: false,\r\n        shapePosition: false,\r\n        titleText: false,\r\n    },\r\n    autosizable: false,\r\n    queueLength: 0,\r\n    fillFrame: false,\r\n    frameMargins: 0,\r\n    scrollZoom: false,\r\n    doubleClick: 'reset+autosize',\r\n    showTips: true,\r\n    showAxisDragHandles: true,\r\n    showAxisRangeEntryBoxes: true,\r\n    showLink: false,\r\n    sendData: true,\r\n    linkText: 'Edit chart',\r\n    showSources: false,\r\n    displayModeBar: 'hover',\r\n    modeBarButtonsToRemove: [],\r\n    modeBarButtonsToAdd: [],\r\n    modeBarButtons: false,\r\n    displaylogo: true,\r\n    plotGlPixelRatio: 2,\r\n    topojsonURL: 'https://cdn.plot.ly/',\r\n    mapboxAccessToken: null,\r\n}",
+          "value": "{}",
           "computed": false
         }
       },
