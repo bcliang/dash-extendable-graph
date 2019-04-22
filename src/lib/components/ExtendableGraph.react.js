@@ -346,6 +346,18 @@ const graphPropTypes = {
     relayoutData: PropTypes.object,
 
     /**
+     * Data that should be appended to existing traces. Has the form
+     * `[updateData, traceIndices, maxPoints]`, where `updateData` is an object
+     * containing the data to extend, `traceIndices` (optional) is an array of
+     * trace indices that should be extended, and `maxPoints` (optional) is
+     * either an integer defining the maximum number of points allowed or an
+     * object with key:value pairs matching `updateData`
+     * Reference the Plotly.extendTraces API for full usage:
+     * https://plot.ly/javascript/plotlyjs-function-reference/#plotlyextendtraces
+     */
+    extendData: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
+
+    /**
      * Data from latest restyle event which occurs
      * when the user toggles a legend item, changes
      * parcoords selections, or other trace-level edits.
@@ -357,20 +369,16 @@ const graphPropTypes = {
     restyleData: PropTypes.array,
 
     /**
-     * Object representing data that should be appended to existing traces
-     * in the Graph.
-     * https://plot.ly/javascript/plotlyjs-function-reference/#plotlyextendtraces
-     */
-    extendData: PropTypes.object,
-
-    /**
      * Plotly `figure` object. See schema:
      * https://plot.ly/javascript/reference
      * Only supports `data` array and `layout` object.
      * `config` is set separately by the `config` property,
      * and `frames` is not supported.
      */
-    figure: PropTypes.object,
+    figure: PropTypes.exact({
+        data: PropTypes.arrayOf(PropTypes.object),
+        layout: PropTypes.object,
+    }),
 
     /**
      * Generic style overrides on the plot div
@@ -399,7 +407,7 @@ const graphPropTypes = {
      * See https://plot.ly/javascript/configuration-options/
      * for more info.
      */
-    config: PropTypes.shape({
+    config: PropTypes.exact({
         /**
          * No interactivity, for export or image generation
          */
@@ -419,7 +427,7 @@ const graphPropTypes = {
         /**
          * A set of editable properties
          */
-        edits: PropTypes.shape({
+        edits: PropTypes.exact({
             /**
              * annotationPosition: the main anchor of the annotation, which is the
              * text (if no arrow) or the arrow (which drags the whole thing leaving
@@ -450,7 +458,7 @@ const graphPropTypes = {
             shapePosition: PropTypes.bool,
 
             /**
-             * the global `layout.title`
+             * The global `layout.title`
              */
             titleText: PropTypes.bool,
         }),
@@ -567,7 +575,7 @@ const graphPropTypes = {
         /**
          * Modifications to how the toImage modebar button works
          */
-        toImageButtonOptions: PropTypes.shape({
+        toImageButtonOptions: PropTypes.exact({
             /**
              * The file format to create
              */
@@ -594,8 +602,8 @@ const graphPropTypes = {
         /**
          * Add the plotly logo on the end of the mode bar
          */
-
         displaylogo: PropTypes.bool,
+
         /**
          * Add the plotly logo even with no modebar
          */
