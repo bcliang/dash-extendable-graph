@@ -24,9 +24,9 @@ when the user zooms or pans on the plot or other
 layout-level edits. Has the form `{<attr string>: <value>}`
 describing the changes made. Read-only.
 - extendData (list | dict; optional): Data that should be appended to existing traces. Has the form
-`[updateData, traceIndices, maxPoints]`, where `updateData` is an object
-containing the data to extend, `traceIndices` (optional) is an array of
-trace indices that should be extended, and `maxPoints` (optional) is
+`[updateData, traceIndices, maxPoints]`, where `updateData` is an array
+containing data objects to extend, `traceIndices` (optional) is an array
+of trace indices that should be extended, and `maxPoints` (optional) is
 either an integer defining the maximum number of points allowed or an
 object with key:value pairs matching `updateData`
 Reference the Plotly.extendTraces API for full usage:
