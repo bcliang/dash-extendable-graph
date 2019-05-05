@@ -178,9 +178,7 @@ class ExtendableGraph extends Component {
         gd.on('plotly_click', eventData => {
             const clickData = filterEventData(gd, eventData, 'click');
             if (!isNil(clickData)) {
-                if (setProps) {
-                    setProps({clickData});
-                }
+                setProps({clickData});
             }
         });
         gd.on('plotly_clickannotation', eventData => {
@@ -188,37 +186,27 @@ class ExtendableGraph extends Component {
                 ['event', 'fullAnnotation'],
                 eventData
             );
-            if (setProps) {
-                setProps({clickAnnotationData});
-            }
+            setProps({clickAnnotationData});
         });
         gd.on('plotly_hover', eventData => {
             const hoverData = filterEventData(gd, eventData, 'hover');
             if (!isNil(hoverData)) {
-                if (setProps) {
-                    setProps({hoverData});
-                }
+                setProps({hoverData});
             }
         });
         gd.on('plotly_selected', eventData => {
             const selectedData = filterEventData(gd, eventData, 'selected');
             if (!isNil(selectedData)) {
-                if (setProps) {
-                    setProps({selectedData});
-                }
+                setProps({selectedData});
             }
         });
         gd.on('plotly_deselect', () => {
-            if (setProps) {
-                setProps({selectedData: null});
-            }
+            setProps({selectedData: null});
         });
         gd.on('plotly_relayout', eventData => {
             const relayoutData = filterEventData(gd, eventData, 'relayout');
             if (!isNil(relayoutData)) {
-                if (setProps) {
-                    setProps({relayoutData});
-                }
+                setProps({relayoutData});
             }
         });
         gd.on('plotly_restyle', eventData => {
@@ -229,9 +217,7 @@ class ExtendableGraph extends Component {
         });
         gd.on('plotly_unhover', () => {
             if (clear_on_unhover) {
-                if (setProps) {
-                    setProps({hoverData: null});
-                }
+                setProps({hoverData: null});
             }
         });
     }
