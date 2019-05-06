@@ -5,7 +5,10 @@ from dash.development.base_component import Component, _explicitize_args
 
 class ExtendableGraph(Component):
     """A ExtendableGraph component.
+ExtendableGraph can be used to render any plotly.js-powered data vis.
 
+You can define callbacks based on user interaction with ExtendableGraphs such
+as hovering, clicking or selecting
 
 Keyword arguments:
 - id (string; optional): The ID of this component, used to identify dash components
@@ -40,9 +43,8 @@ and `indices` is an array of trace indices that were edited.
 Read-only.
 - figure (optional): Plotly `figure` object. See schema:
 https://plot.ly/javascript/reference
-Only supports `data` array and `layout` object.
-`config` is set separately by the `config` property,
-and `frames` is not supported.
+
+`config` is set separately by the `config` property
 - style (dict; optional): Generic style overrides on the plot div
 - className (string; optional): className of the parent div
 - animate (boolean; optional): Beta: If true, animate between updates using
