@@ -75,6 +75,12 @@ function generateId() {
     );
 }
 
+/**
+ * ExtendableGraph can be used to render any plotly.js-powered data vis.
+ *
+ * You can define callbacks based on user interaction with ExtendableGraphs such
+ * as hovering, clicking or selecting
+ */
 const ExtendableGraphWithDefaults = props => {
     const id = props.id ? props.id : generateId();
     return <ExtendableGraph {...props} id={id} />;
@@ -98,15 +104,18 @@ class ExtendableGraph extends Component {
         ) {
             return Plotly.animate(id, figure, animation_options);
         }
-        return Plotly.react(id, figure.data, clone(figure.layout), config).then(
-            () => {
-                if (!this._hasPlotted) {
-                    this.bindEvents();
-                    Plotly.Plots.resize(document.getElementById(id));
-                    this._hasPlotted = true;
-                }
+        return Plotly.react(id, {
+            data: figure.data,
+            layout: clone(figure.layout),
+            frames: figure.frames,
+            config: config,
+        }).then(() => {
+            if (!this._hasPlotted) {
+                this.bindEvents();
+                Plotly.Plots.resize(document.getElementById(id));
+                this._hasPlotted = true;
             }
-        );
+        });
     }
 
     extend(props) {
@@ -178,9 +187,7 @@ class ExtendableGraph extends Component {
         gd.on('plotly_click', eventData => {
             const clickData = filterEventData(gd, eventData, 'click');
             if (!isNil(clickData)) {
-                if (setProps) {
-                    setProps({clickData});
-                }
+                setProps({clickData});
             }
         });
         gd.on('plotly_clickannotation', eventData => {
@@ -188,37 +195,27 @@ class ExtendableGraph extends Component {
                 ['event', 'fullAnnotation'],
                 eventData
             );
-            if (setProps) {
-                setProps({clickAnnotationData});
-            }
+            setProps({clickAnnotationData});
         });
         gd.on('plotly_hover', eventData => {
             const hoverData = filterEventData(gd, eventData, 'hover');
             if (!isNil(hoverData)) {
-                if (setProps) {
-                    setProps({hoverData});
-                }
+                setProps({hoverData});
             }
         });
         gd.on('plotly_selected', eventData => {
             const selectedData = filterEventData(gd, eventData, 'selected');
             if (!isNil(selectedData)) {
-                if (setProps) {
-                    setProps({selectedData});
-                }
+                setProps({selectedData});
             }
         });
         gd.on('plotly_deselect', () => {
-            if (setProps) {
-                setProps({selectedData: null});
-            }
+            setProps({selectedData: null});
         });
         gd.on('plotly_relayout', eventData => {
             const relayoutData = filterEventData(gd, eventData, 'relayout');
             if (!isNil(relayoutData)) {
-                if (setProps) {
-                    setProps({relayoutData});
-                }
+                setProps({relayoutData});
             }
         });
         gd.on('plotly_restyle', eventData => {
@@ -229,9 +226,7 @@ class ExtendableGraph extends Component {
         });
         gd.on('plotly_unhover', () => {
             if (clear_on_unhover) {
-                if (setProps) {
-                    setProps({hoverData: null});
-                }
+                setProps({hoverData: null});
             }
         });
     }
@@ -371,13 +366,13 @@ const graphPropTypes = {
     /**
      * Plotly `figure` object. See schema:
      * https://plot.ly/javascript/reference
-     * Only supports `data` array and `layout` object.
-     * `config` is set separately by the `config` property,
-     * and `frames` is not supported.
+     *
+     * `config` is set separately by the `config` property
      */
     figure: PropTypes.exact({
         data: PropTypes.arrayOf(PropTypes.object),
         layout: PropTypes.object,
+        frames: PropTypes.arrayOf(PropTypes.object),
     }),
 
     /**
@@ -672,7 +667,7 @@ const graphDefaultProps = {
     relayoutData: null,
     extendData: null,
     restyleData: null,
-    figure: {data: [], layout: {}},
+    figure: {data: [], layout: {}, frames: []},
     animate: false,
     animation_options: {
         frame: {

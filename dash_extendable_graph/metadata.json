@@ -1,6 +1,6 @@
 {
   "src/lib/components/ExtendableGraph.react.js": {
-    "description": "",
+    "description": "ExtendableGraph can be used to render any plotly.js-powered data vis.\r\n\nYou can define callbacks based on user interaction with ExtendableGraphs such\r\nas hovering, clicking or selecting",
     "displayName": "ExtendableGraphWithDefaults",
     "methods": [],
     "props": {
@@ -110,12 +110,12 @@
       "figure": {
         "type": {
           "name": "custom",
-          "raw": "PropTypes.exact({\r\n    data: PropTypes.arrayOf(PropTypes.object),\r\n    layout: PropTypes.object,\r\n})"
+          "raw": "PropTypes.exact({\r\n    data: PropTypes.arrayOf(PropTypes.object),\r\n    layout: PropTypes.object,\r\n    frames: PropTypes.arrayOf(PropTypes.object),\r\n})"
         },
         "required": false,
-        "description": "Plotly `figure` object. See schema:\r\nhttps://plot.ly/javascript/reference\r\nOnly supports `data` array and `layout` object.\r\n`config` is set separately by the `config` property,\r\nand `frames` is not supported.",
+        "description": "Plotly `figure` object. See schema:\r\nhttps://plot.ly/javascript/reference\r\n\n`config` is set separately by the `config` property",
         "defaultValue": {
-          "value": "{data: [], layout: {}}",
+          "value": "{data: [], layout: {}, frames: []}",
           "computed": false
         }
       },
