@@ -23,7 +23,7 @@ class IntegrationTests(unittest.TestCase):
         if 'DASH_TEST_CHROMEPATH' in os.environ:
             options.binary_location = os.environ['DASH_TEST_CHROMEPATH']
 
-        cls.driver = webdriver.Chrome(chrome_options=options)
+        cls.driver = webdriver.Chrome(options=options)
 
     @classmethod
     def tearDownClass(cls):
