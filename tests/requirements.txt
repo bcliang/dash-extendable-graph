@@ -3,13 +3,13 @@
 # pip install -r requirements.txt
 
 chromedriver-binary==74.0.3729.6
-dash>=0.31.0
-dash-core-components
-dash-html-components
+dash>=1.0.0
+dash-core-components>=1.0.0
+dash-html-components>=1.0.0
 dash-renderer
 ipdb
 percy
 selenium
 flake8
 pylint
-pytest-dash>=2.0.0
+pytest-dash>=2.1.2
