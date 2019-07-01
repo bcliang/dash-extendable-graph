@@ -1,5 +1,4 @@
-from pytest_dash import (wait_for)
-from .IntegrationTests import IntegrationTests
+from dash.testing.application_runners import import_app
 from multiprocessing import Value
 
 import dash_extendable_graph as deg
@@ -19,9 +18,6 @@ class Tests(IntegrationTests):
     # extending a trace works
     def test_extend_then_add_trace(self):
         app = dash.Dash(__name__)
-
-        app.scripts.config.serve_locally = True
-        app.css.config.serve_locally = True
         app.layout = html.Div([
             deg.ExtendableGraph(
                 id='trace_will_extend_and_add',
@@ -61,10 +57,8 @@ class Tests(IntegrationTests):
         def display_data(trigger, figure):
             return json.dumps(figure['data'])
 
-        self.startServer(app)
-
-        graph = wait_for.wait_for_element_by_css_selector(
-            self.driver, '#trace_will_extend_and_add')
+        dash_duo.startServer(app)
+        graph = dash_duo.find_element("#trace_will_extend_and_add")
 
         comparison = json.dumps([
             dict(
@@ -77,4 +71,4 @@ class Tests(IntegrationTests):
             )
         ])
 
-        wait_for.wait_for_text_to_equal(self.driver, '#output', comparison)
+        dash_duo.wait_for_text_to_equal('#output', comparison)
