@@ -4,7 +4,6 @@ const packagejson = require('./package.json');
 const dashLibraryName = packagejson.name.replace(/-/g, '_');
 
 module.exports = (env, argv) => {
-
     let mode;
 
     const overrides = module.exports || {};
@@ -25,22 +24,24 @@ module.exports = (env, argv) => {
     }
 
     let filename = (overrides.output || {}).filename;
-    if(!filename) {
+    if (!filename) {
         const modeSuffix = mode === 'development' ? 'dev' : 'min';
         filename = `${dashLibraryName}.${modeSuffix}.js`;
     }
 
     const entry = overrides.entry || {main: './src/lib/index.js'};
 
-    const devtool = overrides.devtool || (
-        mode === 'development' ? "eval-source-map" : 'none'
-    );
+    const devtool = overrides.devtool || 'source-map';
 
-    const externals = ('externals' in overrides) ? overrides.externals : ({
-        react: 'React',
-        'react-dom': 'ReactDOM',
-        'plotly.js': 'Plotly',
-    });
+    const externals =
+        'externals' in overrides
+            ? overrides.externals
+            : {
+                  react: 'React',
+                  'react-dom': 'ReactDOM',
+                  'plotly.js': 'Plotly',
+                  'prop-types': 'PropTypes',
+              };
 
     return {
         mode,
@@ -51,11 +52,12 @@ module.exports = (env, argv) => {
             library: dashLibraryName,
             libraryTarget: 'window',
         },
+        devtool,
         externals,
         module: {
             rules: [
                 {
-                    test: /\.js$/,
+                    test: /\.jsx?$/,
                     exclude: /node_modules/,
                     use: {
                         loader: 'babel-loader',
@@ -66,6 +68,9 @@ module.exports = (env, argv) => {
                     use: [
                         {
                             loader: 'style-loader',
+                            options: {
+                                insertAt: 'top',
+                            },
                         },
                         {
                             loader: 'css-loader',
@@ -74,6 +79,5 @@ module.exports = (env, argv) => {
                 },
             ],
         },
-        devtool
-    }
+    };
 };

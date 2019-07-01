@@ -31,11 +31,6 @@
     "react",
     "import"
   ],
-  "settings": {
-    "react": {
-      "version": "detect"
-    }
-  },
   "rules": {
     "accessor-pairs": ["error"],
     "block-scoped-var": ["error"],
@@ -108,7 +103,7 @@
     "yoda": ["error"],
     "spaced-comment": ["error", "always", {
       "block": {
-        exceptions: ["*"]
+        "exceptions": ["*"]
       }
     }],
     "no-unused-vars": ["error", {
