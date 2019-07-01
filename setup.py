@@ -3,7 +3,7 @@ import os
 from setuptools import setup
 import io
 
-with open(os.path.join('dash_extendable_graph', 'package.json')) as f:
+with open(os.path.join('dash_extendable_graph', 'package-info.json')) as f:
     package = json.load(f)
 
 package_name = package["name"].replace(" ", "_").replace("-", "_")
