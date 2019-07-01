@@ -17,7 +17,7 @@ if not hasattr(_dash, 'development'):
     _sys.exit(1)
 
 _basepath = _os.path.dirname(__file__)
-_filepath = _os.path.abspath(_os.path.join(_basepath, 'package.json'))
+_filepath = _os.path.abspath(_os.path.join(_basepath, 'package-info.json'))
 with open(_filepath) as f:
     package = json.load(f)
 
@@ -32,11 +32,16 @@ _this_module = _sys.modules[__name__]
 _js_dist = [
     {
         'relative_package_path': 'dash_extendable_graph.min.js',
-        'dev_package_path': 'dash_extendable_graph.dev.js',
         'external_url': 'https://unpkg.com/{0}@{2}/{1}/{1}.min.js'.format(
             package_name, __name__, __version__),
         'namespace': package_name
-    }
+    },
+    {
+        'relative_package_path': 'dash_extendable_graph.min.js.map',
+        'external_url': 'https://unpkg.com/{0}@{2}/{1}/{1}.min.js.map'.format(
+            package_name, __name__, __version__),
+        'namespace': package_name
+    },
 ]
 
 _css_dist = []
