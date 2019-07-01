@@ -91,6 +91,7 @@ class ExtendableGraph extends Component {
         super(props);
         this.bindEvents = this.bindEvents.bind(this);
         this._hasPlotted = false;
+        this.graphResize = this.graphResize.bind(this);
     }
 
     plot(props) {
@@ -111,9 +112,12 @@ class ExtendableGraph extends Component {
             config: config,
         }).then(() => {
             if (!this._hasPlotted) {
-                this.bindEvents();
-                Plotly.Plots.resize(document.getElementById(id));
-                this._hasPlotted = true;
+                const gd = document.getElementById(id);
+                if (gd) {
+                    this.bindEvents();
+                    Plotly.Plots.resize(gd);
+                    this._hasPlotted = true;
+                }
             }
         });
     }
@@ -179,6 +183,13 @@ class ExtendableGraph extends Component {
         return this.plot(props);
     }
 
+    graphResize() {
+        const graphDiv = document.getElementById(this.props.id);
+        if (graphDiv) {
+            Plotly.Plots.resize(graphDiv);
+        }
+    }
+
     bindEvents() {
         const {id, setProps, clear_on_unhover} = this.props;
 
@@ -233,9 +244,7 @@ class ExtendableGraph extends Component {
 
     componentDidMount() {
         this.plot(this.props).then(() => {
-            window.addEventListener('resize', () => {
-                Plotly.Plots.resize(document.getElementById(this.props.id));
-            });
+            window.addEventListener('resize', this.graphResize);
         });
     }
 
@@ -243,6 +252,7 @@ class ExtendableGraph extends Component {
         if (this.eventEmitter) {
             this.eventEmitter.removeAllListeners();
         }
+        window.removeEventListener('resize', this.graphResize);
     }
 
     shouldComponentUpdate(nextProps) {
