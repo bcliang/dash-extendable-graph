@@ -1,7 +1,5 @@
 include dash_extendable_graph/dash_extendable_graph.min.js
 include dash_extendable_graph/dash_extendable_graph.min.js.map
 include dash_extendable_graph/metadata.json
-include dash_extendable_graph/package-info.json
+include dash_extendable_graph/package.json
 include README.md
-include LICENSE
-include package.json
