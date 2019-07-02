@@ -36,7 +36,7 @@ _js_dist = [
         'external_url': 'https://unpkg.com/{0}@{2}/{1}/{1}.min.js'.format(
             package_name, __name__, __version__),
         'namespace': package_name
-    }
+    },
 ]
 
 _css_dist = []
