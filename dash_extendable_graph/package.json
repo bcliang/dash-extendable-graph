@@ -1,6 +1,6 @@
 {
   "name": "dash_extendable_graph",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "plotly-dash custom component. Adds Plotly.extendTraces() support to dash_core_components.Graph()",
   "homepage": "https://github.com/bcliang/dash-extendable-graph",
   "main": "build/index.js",
@@ -28,9 +28,9 @@
     "ramda": "^0.26.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.4.5",
+    "@babel/core": "^7.5.4",
     "@babel/plugin-proposal-object-rest-spread": "^7.4.0",
-    "@babel/preset-env": "^7.4.5",
+    "@babel/preset-env": "^7.5.4",
     "@babel/preset-react": "^7.0.0",
     "babel-eslint": "^10.0.2",
     "babel-loader": "^8.0.6",
@@ -49,8 +49,8 @@
     "react-dom": "^16.8.6",
     "style-loader": "^0.23.1",
     "styled-jsx": "^3.1.1",
-    "webpack": "^4.29.6",
-    "webpack-cli": "^3.3.0",
+    "webpack": "^4.35.3",
+    "webpack-cli": "^3.3.6",
     "webpack-serve": "^2.0.3",
     "watch": "^1.0.2"
   },
