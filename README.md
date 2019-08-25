@@ -4,7 +4,7 @@
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/dash-extendable-graph.svg)
 [![PyPI - License](https://img.shields.io/pypi/l/dash-extendable-graph.svg)](./LICENSE)
 
-dash-extendable-graph is a Dash component library. This library contains a single component: `ExtendableGraph`. The component is a fork of the Graph() component of [dash-core-components](https://github.com/plotly/dash-core-components) (v 1.0.0). However, the `extendData` for this component has been modified to follow an api that matches the format of `figure['data']` (as opposed to the api defined `Graph.extendData` and `Plotly.extendTraces()`).
+dash-extendable-graph is a Dash component library. This library contains a single component: `ExtendableGraph`. The component is a fork of the Graph() component of [dash-core-components](https://github.com/plotly/dash-core-components) (v 1.1.1). However, the `extendData` for this component has been modified to follow an api that matches the format of `figure['data']` (as opposed to the api defined `Graph.extendData` and `Plotly.extendTraces()`).
 
 Note: plotly.js is required. However, the library is NOT explicitly listed in `MANIFEST.in` or in `dash_extendable_graph\__init__.py` as a way to reduce bundle size. Plotly.js is already distributed with the dash-core-components package, and most projects will import dcc as well as dash-extendable-graph.
 
