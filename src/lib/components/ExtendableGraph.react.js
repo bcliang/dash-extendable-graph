@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {contains, filter, clone, has, isNil, type, omit} from 'ramda';
+import {contains, filter, clone, has, isNil, type, omit, equals} from 'ramda';
 /* global Plotly:true */
 
 const filterEventData = (gd, eventData, event) => {
@@ -191,7 +191,14 @@ class ExtendableGraph extends Component {
     }
 
     bindEvents() {
-        const {setProps, clear_on_unhover} = this.props;
+        const {
+            setProps,
+            clear_on_unhover,
+            relayoutData,
+            restyleData,
+            hoverData,
+            selectedData,
+        } = this.props;
 
         const gd = this.gd.current;
 
@@ -209,30 +216,30 @@ class ExtendableGraph extends Component {
             setProps({clickAnnotationData});
         });
         gd.on('plotly_hover', eventData => {
-            const hoverData = filterEventData(gd, eventData, 'hover');
-            if (!isNil(hoverData)) {
-                setProps({hoverData});
+            const hover = filterEventData(gd, eventData, 'hover');
+            if (!isNil(hover) && !equals(hover, hoverData)) {
+                setProps({hoverData: hover});
             }
         });
         gd.on('plotly_selected', eventData => {
-            const selectedData = filterEventData(gd, eventData, 'selected');
-            if (!isNil(selectedData)) {
-                setProps({selectedData});
+            const selected = filterEventData(gd, eventData, 'selected');
+            if (!isNil(selected) && !equals(selected, selectedData)) {
+                setProps({selectedData: selected});
             }
         });
         gd.on('plotly_deselect', () => {
             setProps({selectedData: null});
         });
         gd.on('plotly_relayout', eventData => {
-            const relayoutData = filterEventData(gd, eventData, 'relayout');
-            if (!isNil(relayoutData)) {
-                setProps({relayoutData});
+            const relayout = filterEventData(gd, eventData, 'relayout');
+            if (!isNil(relayout) && !equals(relayout, relayoutData)) {
+                setProps({relayoutData: relayout});
             }
         });
         gd.on('plotly_restyle', eventData => {
-            const restyleData = filterEventData(gd, eventData, 'restyle');
-            if (!isNil(restyleData)) {
-                setProps({restyleData});
+            const restyle = filterEventData(gd, eventData, 'restyle');
+            if (!isNil(restyle) && !equals(restyle, restyleData)) {
+                setProps({restyleData: restyle});
             }
         });
         gd.on('plotly_unhover', () => {
@@ -274,7 +281,7 @@ class ExtendableGraph extends Component {
             return;
         }
 
-        const figureChanged = this.props.figure !== nextProps.figure;
+        const figureChanged = !equals(this.props.figure, nextProps.figure);
         if (figureChanged) {
             this.plot(nextProps);
         }
@@ -437,7 +444,7 @@ const graphPropTypes = {
          */
         edits: PropTypes.exact({
             /**
-             * annotationPosition: the main anchor of the annotation, which is the
+             * The main anchor of the annotation, which is the
              * text (if no arrow) or the arrow (which drags the whole thing leaving
              * the arrow length & direction unchanged)
              */
@@ -559,12 +566,12 @@ const graphPropTypes = {
          * Remove mode bar button by name.
          * All modebar button names at https://github.com/plotly/plotly.js/blob/master/src/components/modebar/buttons.js
          * Common names include:
-         *  - sendDataToCloud
-         * - (2D): zoom2d, pan2d, select2d, lasso2d, zoomIn2d, zoomOut2d, autoScale2d, resetScale2d
-         * - (Cartesian): hoverClosestCartesian, hoverCompareCartesian
-         * - (3D): zoom3d, pan3d, orbitRotation, tableRotation, handleDrag3d, resetCameraDefault3d, resetCameraLastSave3d, hoverClosest3d
-         * - (Geo): zoomInGeo, zoomOutGeo, resetGeo, hoverClosestGeo
-         * - hoverClosestGl2d, hoverClosestPie, toggleHover, resetViews
+         * sendDataToCloud;
+         * (2D) zoom2d, pan2d, select2d, lasso2d, zoomIn2d, zoomOut2d, autoScale2d, resetScale2d;
+         * (Cartesian) hoverClosestCartesian, hoverCompareCartesian;
+         * (3D) zoom3d, pan3d, orbitRotation, tableRotation, handleDrag3d, resetCameraDefault3d, resetCameraLastSave3d, hoverClosest3d;
+         * (Geo) zoomInGeo, zoomOutGeo, resetGeo, hoverClosestGeo;
+         * hoverClosestGl2d, hoverClosestPie, toggleHover, resetViews.
          */
         modeBarButtonsToRemove: PropTypes.array,
 
