@@ -2,7 +2,9 @@
 # Switch into a virtual environment
 # pip install -r requirements.txt
 
-chromedriver-binary==74.0.3729.6
+chromedriver-binary==76.0.3809.126
+dash[testing]
+pytest>=5.1.1
 ipdb
 percy
 selenium
