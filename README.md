@@ -115,7 +115,11 @@ $ python usage.py
 
 ## Tests
 
-- Run the tests with `$pytest tests`
+Integration tests for the component can be found in `tests/`
+
+`$pytest --headless tests`
+
+(note: the `--headless` param runs tests without the GUI)
 
 ### Create a production build and publish:
 
