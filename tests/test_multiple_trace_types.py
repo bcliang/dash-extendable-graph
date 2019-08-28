@@ -13,7 +13,7 @@ import json
 # extending a trace works
 
 
-def test_multiple_trace_types(dash_duo):
+def test_extg005_multiple_trace_types(dash_duo):
     app = dash.Dash(__name__)
     app.layout = html.Div([
         deg.ExtendableGraph(id='multi_trace_types', figure=dict(data=[])),
@@ -43,7 +43,7 @@ def test_multiple_trace_types(dash_duo):
 
         return json.dumps(figure['data'])
 
-    dash_duo.startServer(app)
+    dash_duo.start_server(app)
     graph = dash_duo.find_element("#multi_trace_types")
 
     comparison = json.dumps(

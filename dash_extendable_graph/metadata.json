@@ -1,8 +1,47 @@
 {
   "src/lib/components/ExtendableGraph.react.js": {
     "description": "ExtendableGraph can be used to render any plotly.js-powered data vis.\r\n\nYou can define callbacks based on user interaction with ExtendableGraphs such\r\nas hovering, clicking or selecting",
-    "displayName": "ExtendableGraphWithDefaults",
-    "methods": [],
+    "displayName": "ExtendableGraph",
+    "methods": [
+      {
+        "name": "plot",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "props",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "extend",
+        "docblock": null,
+        "modifiers": [],
+        "params": [
+          {
+            "name": "props",
+            "type": null
+          }
+        ],
+        "returns": null
+      },
+      {
+        "name": "graphResize",
+        "docblock": null,
+        "modifiers": [],
+        "params": [],
+        "returns": null
+      },
+      {
+        "name": "bindEvents",
+        "docblock": null,
+        "modifiers": [],
+        "params": [],
+        "returns": null
+      }
+    ],
     "props": {
       "id": {
         "type": {
@@ -198,7 +237,7 @@
               "value": {
                 "annotationPosition": {
                   "name": "bool",
-                  "description": "annotationPosition: the main anchor of the annotation, which is the\r\ntext (if no arrow) or the arrow (which drags the whole thing leaving\r\nthe arrow length & direction unchanged)",
+                  "description": "The main anchor of the annotation, which is the\r\ntext (if no arrow) or the arrow (which drags the whole thing leaving\r\nthe arrow length & direction unchanged)",
                   "required": false
                 },
                 "annotationTail": {
@@ -353,7 +392,7 @@
             },
             "modeBarButtonsToRemove": {
               "name": "array",
-              "description": "Remove mode bar button by name.\r\nAll modebar button names at https://github.com/plotly/plotly.js/blob/master/src/components/modebar/buttons.js\r\nCommon names include:\r\n - sendDataToCloud\r\n- (2D): zoom2d, pan2d, select2d, lasso2d, zoomIn2d, zoomOut2d, autoScale2d, resetScale2d\r\n- (Cartesian): hoverClosestCartesian, hoverCompareCartesian\r\n- (3D): zoom3d, pan3d, orbitRotation, tableRotation, handleDrag3d, resetCameraDefault3d, resetCameraLastSave3d, hoverClosest3d\r\n- (Geo): zoomInGeo, zoomOutGeo, resetGeo, hoverClosestGeo\r\n- hoverClosestGl2d, hoverClosestPie, toggleHover, resetViews",
+              "description": "Remove mode bar button by name.\r\nAll modebar button names at https://github.com/plotly/plotly.js/blob/master/src/components/modebar/buttons.js\r\nCommon names include:\r\nsendDataToCloud;\r\n(2D) zoom2d, pan2d, select2d, lasso2d, zoomIn2d, zoomOut2d, autoScale2d, resetScale2d;\r\n(Cartesian) hoverClosestCartesian, hoverCompareCartesian;\r\n(3D) zoom3d, pan3d, orbitRotation, tableRotation, handleDrag3d, resetCameraDefault3d, resetCameraLastSave3d, hoverClosest3d;\r\n(Geo) zoomInGeo, zoomOutGeo, resetGeo, hoverClosestGeo;\r\nhoverClosestGl2d, hoverClosestPie, toggleHover, resetViews.",
               "required": false
             },
             "modeBarButtonsToAdd": {

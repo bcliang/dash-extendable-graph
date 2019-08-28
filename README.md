@@ -4,7 +4,7 @@
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/dash-extendable-graph.svg)
 [![PyPI - License](https://img.shields.io/pypi/l/dash-extendable-graph.svg)](./LICENSE)
 
-dash-extendable-graph is a Dash component library. This library contains a single component: `ExtendableGraph`. The component is a fork of the Graph() component of [dash-core-components](https://github.com/plotly/dash-core-components) (v 1.0.0). However, the `extendData` for this component has been modified to follow an api that matches the format of `figure['data']` (as opposed to the api defined `Graph.extendData` and `Plotly.extendTraces()`).
+dash-extendable-graph is a Dash component library. This library contains a single component: `ExtendableGraph`. The component is a fork of the Graph() component of [dash-core-components](https://github.com/plotly/dash-core-components) (v 1.1.1). However, the `extendData` for this component has been modified to follow an api that matches the format of `figure['data']` (as opposed to the api defined `Graph.extendData` and `Plotly.extendTraces()`).
 
 Note: plotly.js is required. However, the library is NOT explicitly listed in `MANIFEST.in` or in `dash_extendable_graph\__init__.py` as a way to reduce bundle size. Plotly.js is already distributed with the dash-core-components package, and most projects will import dcc as well as dash-extendable-graph.
 
@@ -26,13 +26,13 @@ $ pip install dash-extendable-graph
 
 General examples may be found in `usage.py`
 
-### extendData keys
+### extendData properties
 
 1. `updateData` [list]: a list of dictionaries, each containing representing trace data (e.g `dict(x=[1], y=[1])`)
 2. `traceIndices` [list, optional]: identify the traces that should be extended. If the specified trace index does not exist, the corresponding trace shall be appended to the figure.
 3. `maxPoints` [number, optional]: define the maximum number of points to plot in the figure (per trace).
 
-Based on the [`Plotly.extendTraces()` api](https://github.com/plotly/plotly.js/blob/master/src/plot_api/plot_api.js#L979).
+Based on the [`Plotly.extendTraces()` api](https://github.com/plotly/plotly.js/blob/master/src/plot_api/plot_api.js#L979). However, the `updateData` key has been modified to better match the contents of `Plotly.plot()` (e.g. `Graph.figure`). Aside from following dash-familiar styling, this component allows the user to extend traces of different types in a single call (`Plotly.extendTraces()` takes a map of key:val and assumes all traces will share the same data keys).
 
 ### Code
 
@@ -115,7 +115,11 @@ $ python usage.py
 
 ## Tests
 
-- Run the tests with `$pytest tests`
+Integration tests for the component can be found in `tests/`
+
+`$pytest --headless tests`
+
+(note: the `--headless` param runs tests without the GUI)
 
 ### Create a production build and publish:
 

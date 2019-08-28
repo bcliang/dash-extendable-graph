@@ -13,7 +13,7 @@ import json
 # extending a trace works
 
 
-def test_extend_then_add_trace(dash_duo):
+def test_extg003_extend_then_add_trace(dash_duo):
     app = dash.Dash(__name__)
     app.layout = html.Div([
         deg.ExtendableGraph(
@@ -54,7 +54,7 @@ def test_extend_then_add_trace(dash_duo):
     def display_data(trigger, figure):
         return json.dumps(figure['data'])
 
-    dash_duo.startServer(app)
+    dash_duo.start_server(app)
     graph = dash_duo.find_element("#trace_will_extend_and_add")
 
     comparison = json.dumps([

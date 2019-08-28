@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {contains, filter, clone, has, isNil, type, omit} from 'ramda';
+import {contains, filter, clone, has, isNil, type, omit, equals} from 'ramda';
 /* global Plotly:true */
 
 const filterEventData = (gd, eventData, event) => {
@@ -64,67 +64,67 @@ const filterEventData = (gd, eventData, event) => {
     return filteredEventData;
 };
 
-function generateId() {
-    const charAmount = 36;
-    const length = 7;
-    return (
-        'graph-' +
-        Math.random()
-            .toString(charAmount)
-            .substring(2, length)
-    );
-}
-
 /**
  * ExtendableGraph can be used to render any plotly.js-powered data vis.
  *
  * You can define callbacks based on user interaction with ExtendableGraphs such
  * as hovering, clicking or selecting
  */
-const ExtendableGraphWithDefaults = props => {
-    const id = props.id ? props.id : generateId();
-    return <ExtendableGraph {...props} id={id} />;
-};
-
 class ExtendableGraph extends Component {
     constructor(props) {
         super(props);
+        this.gd = React.createRef();
         this.bindEvents = this.bindEvents.bind(this);
         this._hasPlotted = false;
+        this._prevGd = null;
         this.graphResize = this.graphResize.bind(this);
     }
 
     plot(props) {
-        const {figure, id, animate, animation_options, config} = props;
-        const gd = document.getElementById(id);
+        const {figure, animate, animation_options, config} = props;
+        const gd = this.gd.current;
 
         if (
             animate &&
             this._hasPlotted &&
             figure.data.length === gd.data.length
         ) {
-            return Plotly.animate(id, figure, animation_options);
+            return Plotly.animate(gd, figure, animation_options);
         }
-        return Plotly.react(id, {
+        return Plotly.react(gd, {
             data: figure.data,
             layout: clone(figure.layout),
             frames: figure.frames,
             config: config,
         }).then(() => {
-            if (!this._hasPlotted) {
-                const gd = document.getElementById(id);
-                if (gd) {
-                    this.bindEvents();
-                    Plotly.Plots.resize(gd);
-                    this._hasPlotted = true;
+            const gd = this.gd.current;
+
+            // double-check gd hasn't been unmounted
+            if (!gd) {
+                return;
+            }
+
+            // in case we've made a new DOM element, transfer events
+            if (this._hasPlotted && gd !== this._prevGd) {
+                if (this._prevGd && this._prevGd.removeAllListeners) {
+                    this._prevGd.removeAllListeners();
+                    Plotly.purge(this._prevGd);
                 }
+                this._hasPlotted = false;
+            }
+
+            if (!this._hasPlotted) {
+                this.bindEvents();
+                Plotly.Plots.resize(gd);
+                this._hasPlotted = true;
+                this._prevGd = gd;
             }
         });
     }
 
     extend(props) {
-        const {id, extendData} = props;
-        const gd = document.getElementById(id);
+        const {extendData} = props;
+        const gd = this.gd.current;
         let updateData, traceIndices, maxPoints;
 
         if (extendData) {
@@ -158,24 +158,24 @@ class ExtendableGraph extends Component {
                 if (i < updateData.length - 1) {
                     if (traceIndices[i] < gd.data.length) {
                         Plotly.extendTraces(
-                            id,
+                            gd,
                             updateObject,
                             [traceIndices[i]],
                             maxPoints
                         );
                     } else {
-                        Plotly.addTraces(id, value);
+                        Plotly.addTraces(gd, value);
                     }
                 } else {
                     if (traceIndices[i] < gd.data.length) {
                         return Plotly.extendTraces(
-                            id,
+                            gd,
                             updateObject,
                             [traceIndices[i]],
                             maxPoints
                         );
                     }
-                    return Plotly.addTraces(id, value);
+                    return Plotly.addTraces(gd, value);
                 }
             }
         }
@@ -184,16 +184,23 @@ class ExtendableGraph extends Component {
     }
 
     graphResize() {
-        const graphDiv = document.getElementById(this.props.id);
-        if (graphDiv) {
-            Plotly.Plots.resize(graphDiv);
+        const gd = this.gd.current;
+        if (gd) {
+            Plotly.Plots.resize(gd);
         }
     }
 
     bindEvents() {
-        const {id, setProps, clear_on_unhover} = this.props;
+        const {
+            setProps,
+            clear_on_unhover,
+            relayoutData,
+            restyleData,
+            hoverData,
+            selectedData,
+        } = this.props;
 
-        const gd = document.getElementById(id);
+        const gd = this.gd.current;
 
         gd.on('plotly_click', eventData => {
             const clickData = filterEventData(gd, eventData, 'click');
@@ -209,30 +216,30 @@ class ExtendableGraph extends Component {
             setProps({clickAnnotationData});
         });
         gd.on('plotly_hover', eventData => {
-            const hoverData = filterEventData(gd, eventData, 'hover');
-            if (!isNil(hoverData)) {
-                setProps({hoverData});
+            const hover = filterEventData(gd, eventData, 'hover');
+            if (!isNil(hover) && !equals(hover, hoverData)) {
+                setProps({hoverData: hover});
             }
         });
         gd.on('plotly_selected', eventData => {
-            const selectedData = filterEventData(gd, eventData, 'selected');
-            if (!isNil(selectedData)) {
-                setProps({selectedData});
+            const selected = filterEventData(gd, eventData, 'selected');
+            if (!isNil(selected) && !equals(selected, selectedData)) {
+                setProps({selectedData: selected});
             }
         });
         gd.on('plotly_deselect', () => {
             setProps({selectedData: null});
         });
         gd.on('plotly_relayout', eventData => {
-            const relayoutData = filterEventData(gd, eventData, 'relayout');
-            if (!isNil(relayoutData)) {
-                setProps({relayoutData});
+            const relayout = filterEventData(gd, eventData, 'relayout');
+            if (!isNil(relayout) && !equals(relayout, relayoutData)) {
+                setProps({relayoutData: relayout});
             }
         });
         gd.on('plotly_restyle', eventData => {
-            const restyleData = filterEventData(gd, eventData, 'restyle');
-            if (!isNil(restyleData)) {
-                setProps({restyleData});
+            const restyle = filterEventData(gd, eventData, 'restyle');
+            if (!isNil(restyle) && !equals(restyle, restyleData)) {
+                setProps({restyleData: restyle});
             }
         });
         gd.on('plotly_unhover', () => {
@@ -249,8 +256,10 @@ class ExtendableGraph extends Component {
     }
 
     componentWillUnmount() {
-        if (this.eventEmitter) {
-            this.eventEmitter.removeAllListeners();
+        const gd = this.gd.current;
+        if (gd && gd.removeAllListeners) {
+            gd.removeAllListeners();
+            Plotly.purge(gd);
         }
         window.removeEventListener('resize', this.graphResize);
     }
@@ -297,6 +306,7 @@ class ExtendableGraph extends Component {
             <div
                 key={id}
                 id={id}
+                ref={this.gd}
                 data-dash-is-loading={
                     (loading_state && loading_state.is_loading) || undefined
                 }
@@ -434,7 +444,7 @@ const graphPropTypes = {
          */
         edits: PropTypes.exact({
             /**
-             * annotationPosition: the main anchor of the annotation, which is the
+             * The main anchor of the annotation, which is the
              * text (if no arrow) or the arrow (which drags the whole thing leaving
              * the arrow length & direction unchanged)
              */
@@ -556,12 +566,12 @@ const graphPropTypes = {
          * Remove mode bar button by name.
          * All modebar button names at https://github.com/plotly/plotly.js/blob/master/src/components/modebar/buttons.js
          * Common names include:
-         *  - sendDataToCloud
-         * - (2D): zoom2d, pan2d, select2d, lasso2d, zoomIn2d, zoomOut2d, autoScale2d, resetScale2d
-         * - (Cartesian): hoverClosestCartesian, hoverCompareCartesian
-         * - (3D): zoom3d, pan3d, orbitRotation, tableRotation, handleDrag3d, resetCameraDefault3d, resetCameraLastSave3d, hoverClosest3d
-         * - (Geo): zoomInGeo, zoomOutGeo, resetGeo, hoverClosestGeo
-         * - hoverClosestGl2d, hoverClosestPie, toggleHover, resetViews
+         * sendDataToCloud;
+         * (2D) zoom2d, pan2d, select2d, lasso2d, zoomIn2d, zoomOut2d, autoScale2d, resetScale2d;
+         * (Cartesian) hoverClosestCartesian, hoverCompareCartesian;
+         * (3D) zoom3d, pan3d, orbitRotation, tableRotation, handleDrag3d, resetCameraDefault3d, resetCameraLastSave3d, hoverClosest3d;
+         * (Geo) zoomInGeo, zoomOutGeo, resetGeo, hoverClosestGeo;
+         * hoverClosestGl2d, hoverClosestPie, toggleHover, resetViews.
          */
         modeBarButtonsToRemove: PropTypes.array,
 
@@ -692,10 +702,7 @@ const graphDefaultProps = {
     config: {},
 };
 
-ExtendableGraphWithDefaults.propTypes = graphPropTypes;
 ExtendableGraph.propTypes = graphPropTypes;
-
-ExtendableGraphWithDefaults.defaultProps = graphDefaultProps;
 ExtendableGraph.defaultProps = graphDefaultProps;
 
-export default ExtendableGraphWithDefaults;
+export default ExtendableGraph;
