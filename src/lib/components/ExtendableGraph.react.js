@@ -281,7 +281,7 @@ class ExtendableGraph extends Component {
             return;
         }
 
-        const figureChanged = !equals(this.props.figure, nextProps.figure);
+        const figureChanged = this.props.figure !== nextProps.figure;
         if (figureChanged) {
             this.plot(nextProps);
         }
