@@ -259,7 +259,9 @@ class ExtendableGraph extends Component {
         const gd = this.gd.current;
         if (gd && gd.removeAllListeners) {
             gd.removeAllListeners();
-            Plotly.purge(gd);
+            if (this._hasPlotted) {
+                Plotly.purge(gd);
+            }
         }
         window.removeEventListener('resize', this.graphResize);
     }
@@ -281,14 +283,11 @@ class ExtendableGraph extends Component {
             return;
         }
 
-        const figureChanged = this.props.figure !== nextProps.figure;
-        if (figureChanged) {
+        if (this.props.figure !== nextProps.figure) {
             this.plot(nextProps);
         }
 
-        const extendDataChanged =
-            this.props.extendData !== nextProps.extendData;
-        if (extendDataChanged) {
+        if (this.props.extendData !== nextProps.extendData) {
             this.extend(nextProps);
         }
     }
