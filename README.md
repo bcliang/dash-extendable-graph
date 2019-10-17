@@ -117,15 +117,17 @@ $ python usage.py
 
 Integration tests for the component can be found in `tests/`
 
-`$pytest --headless tests`
+```bash
+$pytest --headless tests
+```
 
 (note: the `--headless` param runs tests without the GUI)
 
 ### Create a production build and publish:
 
 ```bash
-$ npm run build
 $ rm -rf dist
+$ npm run build
 $ python setup.py sdist bdist_wheel
 $ twine upload dist/*
 $ npm publish

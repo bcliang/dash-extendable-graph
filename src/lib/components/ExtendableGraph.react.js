@@ -287,7 +287,7 @@ class ExtendableGraph extends Component {
             this.plot(nextProps);
         }
 
-        if (this.props.extendData !== nextProps.extendDat) {
+        if (this.props.extendData !== nextProps.extendData) {
             this.extend(nextProps);
         }
     }
