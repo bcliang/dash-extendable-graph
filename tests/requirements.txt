@@ -4,9 +4,6 @@
 
 chromedriver-binary==76.0.3809.126
 dash[testing]
-pytest>=5.1.1
 ipdb
-percy
-selenium
 flake8
 pylint
