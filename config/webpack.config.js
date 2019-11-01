@@ -1,6 +1,6 @@
 const path = require('path');
 const packagejson = require('../package.json');
-
+const WebpackDashDynamicImport = require('@plotly/webpack-dash-dynamic-import');
 const dashLibraryName = packagejson.name.replace(/-/g, '_');
 
 module.exports = (env, argv) => {
@@ -38,7 +38,6 @@ module.exports = (env, argv) => {
             : {
                   react: 'React',
                   'react-dom': 'ReactDOM',
-                  'plotly.js': 'Plotly',
                   'prop-types': 'PropTypes',
               };
 
@@ -47,10 +46,12 @@ module.exports = (env, argv) => {
         entry,
         output: {
             path: path.resolve(path.join(__dirname, '../'), dashLibraryName),
+            chunkFilename: '[name].js',
             filename,
             library: dashLibraryName,
             libraryTarget: 'window',
         },
+        devtool,
         externals,
         module: {
             rules: [
@@ -66,6 +67,9 @@ module.exports = (env, argv) => {
                     use: [
                         {
                             loader: 'style-loader',
+                            options: {
+                                insertAt: 'top',
+                            },
                         },
                         {
                             loader: 'css-loader',
@@ -74,6 +78,25 @@ module.exports = (env, argv) => {
                 },
             ],
         },
-        devtool,
+        resolve: {
+            alias: {
+                'plotly.js': 'plotly.js/dist/plotly.min.js',
+            },
+        },
+        optimization: {
+            splitChunks: {
+                name: true,
+                cacheGroups: {
+                    async: {
+                        chunks: 'async',
+                        minSize: 0,
+                        name(module, chunks, cacheGroupKey) {
+                            return `${cacheGroupKey}~${chunks[0].name}`;
+                        },
+                    },
+                },
+            },
+        },
+        plugins: [new WebpackDashDynamicImport()],
     };
 };

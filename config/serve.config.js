@@ -2,6 +2,7 @@ const baseConfig = require('./webpack.config.js');
 const merge = require('webpack-merge');
 const path = require('path');
 const {WebpackPluginServe: Serve} = require('webpack-plugin-serve');
+const WebpackDashDynamicImport = require('@plotly/webpack-dash-dynamic-import');
 
 const serve = new Serve({
     host: 'localhost',
@@ -16,7 +17,7 @@ module.exports = merge(baseConfig, {
     entry: {
         app: ['./src/demo/index.js'],
     },
-    plugins: [serve],
+    plugins: [serve, new WebpackDashDynamicImport()],
     module: {
         rules: [
             {
@@ -38,6 +39,20 @@ module.exports = merge(baseConfig, {
                 ],
             },
         ],
+    },
+    optimization: {
+        splitChunks: {
+            name: true,
+            cacheGroups: {
+                async: {
+                    chunks: 'async',
+                    minSize: 0,
+                    name(module, chunks, cacheGroupKey) {
+                        return `${cacheGroupKey}~${chunks[0].name}`;
+                    },
+                },
+            },
+        },
     },
     watch: true,
 });

@@ -1,5 +1,6 @@
 include dash_extendable_graph/dash_extendable_graph.min.js
 include dash_extendable_graph/dash_extendable_graph.dev.js
+include dash_extendable_graph/async~*.js
 include dash_extendable_graph/metadata.json
 include dash_extendable_graph/package.json
 include README.md

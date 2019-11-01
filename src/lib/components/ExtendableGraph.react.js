@@ -1,328 +1,128 @@
-import React, {Component} from 'react';
+import React, {Component, PureComponent, Suspense} from 'react';
 import PropTypes from 'prop-types';
-import {contains, filter, clone, has, isNil, type, omit, equals} from 'ramda';
-/* global Plotly:true */
+import {asyncDecorator} from '@plotly/dash-component-plugins';
 
-const filterEventData = (gd, eventData, event) => {
-    let filteredEventData;
-    if (contains(event, ['click', 'hover', 'selected'])) {
-        const points = [];
-
-        if (isNil(eventData)) {
-            return null;
-        }
-
-        /*
-         * remove `data`, `layout`, `xaxis`, etc
-         * objects from the event data since they're so big
-         * and cause JSON stringify ciricular structure errors.
-         *
-         * also, pull down the `customdata` point from the data array
-         * into the event object
-         */
-        const data = gd.data;
-
-        for (let i = 0; i < eventData.points.length; i++) {
-            const fullPoint = eventData.points[i];
-            const pointData = filter(function(o) {
-                return !contains(type(o), ['Object', 'Array']);
-            }, fullPoint);
-            if (
-                has('curveNumber', fullPoint) &&
-                has('pointNumber', fullPoint) &&
-                has('customdata', data[pointData.curveNumber])
-            ) {
-                pointData.customdata =
-                    data[pointData.curveNumber].customdata[
-                        fullPoint.pointNumber
-                    ];
-            }
-
-            // specific to histogram. see https://github.com/plotly/plotly.js/pull/2113/
-            if (has('pointNumbers', fullPoint)) {
-                pointData.pointNumbers = fullPoint.pointNumbers;
-            }
-
-            points[i] = pointData;
-        }
-        filteredEventData = {points};
-    } else if (event === 'relayout' || event === 'restyle') {
-        /*
-         * relayout shouldn't include any big objects
-         * it will usually just contain the ranges of the axes like
-         * "xaxis.range[0]": 0.7715822247381828,
-         * "xaxis.range[1]": 3.0095292008680063`
-         */
-        filteredEventData = eventData;
-    }
-    if (has('range', eventData)) {
-        filteredEventData.range = eventData.range;
-    }
-    if (has('lassoPoints', eventData)) {
-        filteredEventData.lassoPoints = eventData.lassoPoints;
-    }
-    return filteredEventData;
+const loader = {
+    plotly: () =>
+        Promise.resolve(
+            window.Plotly ||
+                import(/* webpackChunkName: "plotlyjs" */ 'plotly.js').then(
+                    ({default: Plotly}) => {
+                        window.Plotly = Plotly;
+                        return Plotly;
+                    }
+                )
+        ),
+    extgraph: () =>
+        import(
+            /* webpackChunkName: "extgraph" */ '../fragments/ExtendableGraph.react'
+        ),
 };
 
+const EMPTY_EXTEND_DATA = [];
+
 /**
- * ExtendableGraph can be used to render any plotly.js-powered data vis.
+ * ExtendableGraph can be used to render any plotly.js-powered data visualization.
  *
- * You can define callbacks based on user interaction with ExtendableGraphs such
- * as hovering, clicking or selecting
+ * You can define callbacks based on user interaction with ExtendableGraphs such as
+ * hovering, clicking or selecting
  */
 class ExtendableGraph extends Component {
     constructor(props) {
         super(props);
-        this.gd = React.createRef();
-        this.bindEvents = this.bindEvents.bind(this);
-        this._hasPlotted = false;
-        this._prevGd = null;
-        this.graphResize = this.graphResize.bind(this);
-    }
 
-    plot(props) {
-        const {figure, animate, animation_options, config} = props;
-        const gd = this.gd.current;
+        this.state = {
+            extendData: [],
+        };
 
-        if (
-            animate &&
-            this._hasPlotted &&
-            figure.data.length === gd.data.length
-        ) {
-            return Plotly.animate(gd, figure, animation_options);
-        }
-        return Plotly.react(gd, {
-            data: figure.data,
-            layout: clone(figure.layout),
-            frames: figure.frames,
-            config: config,
-        }).then(() => {
-            const gd = this.gd.current;
-
-            // double-check gd hasn't been unmounted
-            if (!gd) {
-                return;
-            }
-
-            // in case we've made a new DOM element, transfer events
-            if (this._hasPlotted && gd !== this._prevGd) {
-                if (this._prevGd && this._prevGd.removeAllListeners) {
-                    this._prevGd.removeAllListeners();
-                    Plotly.purge(this._prevGd);
-                }
-                this._hasPlotted = false;
-            }
-
-            if (!this._hasPlotted) {
-                this.bindEvents();
-                Plotly.Plots.resize(gd);
-                this._hasPlotted = true;
-                this._prevGd = gd;
-            }
-        });
-    }
-
-    extend(props) {
-        const {extendData} = props;
-        const gd = this.gd.current;
-        let updateData, traceIndices, maxPoints;
-
-        if (extendData) {
-            if (gd.data.length < 1) {
-                // figure has no pre-existing data. redirect to plot()
-                props.figure.data = extendData;
-                return this.plot(props);
-            }
-
-            if (Array.isArray(extendData) && Array.isArray(extendData[0])) {
-                [updateData, traceIndices, maxPoints] = extendData;
-            } else {
-                updateData = extendData;
-            }
-
-            if (!traceIndices) {
-                traceIndices = Array.from(Array(updateData.length).keys());
-            }
-
-            function createDataObject(data) {
-                const dataprops = Object.keys(data);
-                const ret = {};
-                for (let i = 0; i < dataprops.length; i++) {
-                    ret[dataprops[i]] = [data[dataprops[i]]];
-                }
-                return ret;
-            }
-
-            for (const [i, value] of updateData.entries()) {
-                const updateObject = createDataObject(value);
-                if (i < updateData.length - 1) {
-                    if (traceIndices[i] < gd.data.length) {
-                        Plotly.extendTraces(
-                            gd,
-                            updateObject,
-                            [traceIndices[i]],
-                            maxPoints
-                        );
-                    } else {
-                        Plotly.addTraces(gd, value);
-                    }
-                } else {
-                    if (traceIndices[i] < gd.data.length) {
-                        return Plotly.extendTraces(
-                            gd,
-                            updateObject,
-                            [traceIndices[i]],
-                            maxPoints
-                        );
-                    }
-                    return Plotly.addTraces(gd, value);
-                }
-            }
-        }
-
-        return this.plot(props);
-    }
-
-    graphResize() {
-        const gd = this.gd.current;
-        if (gd) {
-            Plotly.Plots.resize(gd);
-        }
-    }
-
-    bindEvents() {
-        const {
-            setProps,
-            clear_on_unhover,
-            relayoutData,
-            restyleData,
-            hoverData,
-            selectedData,
-        } = this.props;
-
-        const gd = this.gd.current;
-
-        gd.on('plotly_click', eventData => {
-            const clickData = filterEventData(gd, eventData, 'click');
-            if (!isNil(clickData)) {
-                setProps({clickData});
-            }
-        });
-        gd.on('plotly_clickannotation', eventData => {
-            const clickAnnotationData = omit(
-                ['event', 'fullAnnotation'],
-                eventData
-            );
-            setProps({clickAnnotationData});
-        });
-        gd.on('plotly_hover', eventData => {
-            const hover = filterEventData(gd, eventData, 'hover');
-            if (!isNil(hover) && !equals(hover, hoverData)) {
-                setProps({hoverData: hover});
-            }
-        });
-        gd.on('plotly_selected', eventData => {
-            const selected = filterEventData(gd, eventData, 'selected');
-            if (!isNil(selected) && !equals(selected, selectedData)) {
-                setProps({selectedData: selected});
-            }
-        });
-        gd.on('plotly_deselect', () => {
-            setProps({selectedData: null});
-        });
-        gd.on('plotly_relayout', eventData => {
-            const relayout = filterEventData(gd, eventData, 'relayout');
-            if (!isNil(relayout) && !equals(relayout, relayoutData)) {
-                setProps({relayoutData: relayout});
-            }
-        });
-        gd.on('plotly_restyle', eventData => {
-            const restyle = filterEventData(gd, eventData, 'restyle');
-            if (!isNil(restyle) && !equals(restyle, restyleData)) {
-                setProps({restyleData: restyle});
-            }
-        });
-        gd.on('plotly_unhover', () => {
-            if (clear_on_unhover) {
-                setProps({hoverData: null});
-            }
-        });
+        this.clearExtendData = this.clearExtendData.bind(this);
     }
 
     componentDidMount() {
-        this.plot(this.props).then(() => {
-            window.addEventListener('resize', this.graphResize);
-        });
+        if (this.props.extendData) {
+            this.setState({
+                extendData: [this.props.extendData],
+            });
+        }
     }
 
     componentWillUnmount() {
-        const gd = this.gd.current;
-        if (gd && gd.removeAllListeners) {
-            gd.removeAllListeners();
-            if (this._hasPlotted) {
-                Plotly.purge(gd);
-            }
-        }
-        window.removeEventListener('resize', this.graphResize);
-    }
-
-    shouldComponentUpdate(nextProps) {
-        return (
-            this.props.id !== nextProps.id ||
-            JSON.stringify(this.props.style) !== JSON.stringify(nextProps.style)
-        );
+        this.setState({
+            extendData: [],
+        });
     }
 
     componentWillReceiveProps(nextProps) {
-        const idChanged = this.props.id !== nextProps.id;
-        if (idChanged) {
-            /*
-             * then the dom needs to get re-rendered with a new ID.
-             * the graph will get updated in componentDidUpdate
-             */
-            return;
-        }
+        let extendData = this.state.extendData.slice(0);
 
         if (this.props.figure !== nextProps.figure) {
-            this.plot(nextProps);
+            extendData = EMPTY_EXTEND_DATA;
         }
 
-        if (this.props.extendData !== nextProps.extendData) {
-            this.extend(nextProps);
+        if (
+            nextProps.extendData &&
+            this.props.extendData !== nextProps.extendData
+        ) {
+            extendData.push(nextProps.extendData);
+        } else {
+            extendData = EMPTY_EXTEND_DATA;
+        }
+
+        if (extendData !== EMPTY_EXTEND_DATA) {
+            this.setState({
+                extendData,
+            });
         }
     }
 
-    componentDidUpdate(prevProps) {
-        if (prevProps.id !== this.props.id) {
-            this.plot(this.props);
-        }
+    clearExtendData() {
+        this.setState(({extendData}) => {
+            const res =
+                extendData && extendData.length
+                    ? {
+                          extendData: EMPTY_EXTEND_DATA,
+                      }
+                    : undefined;
+
+            return res;
+        });
     }
 
     render() {
-        const {className, id, style, loading_state} = this.props;
-
         return (
-            <div
-                key={id}
-                id={id}
-                ref={this.gd}
-                data-dash-is-loading={
-                    (loading_state && loading_state.is_loading) || undefined
-                }
-                style={style}
-                className={className}
+            <ExtendableGraphComponent
+                {...{
+                    ...this.props,
+                    extendData: this.state.extendData,
+                    clearExtendData: this.clearExtendData,
+                }}
             />
         );
     }
 }
 
-const graphPropTypes = {
+const AsyncExtendableGraph = asyncDecorator(ExtendableGraph, () =>
+    loader.plotly().then(() => loader.extgraph())
+);
+
+class ExtendableGraphComponent extends PureComponent {
+    render() {
+        return (
+            <Suspense fallback={null}>
+                <AsyncExtendableGraph {...this.props} />
+            </Suspense>
+        );
+    }
+}
+
+export const graphPropTypes = {
     /**
      * The ID of this component, used to identify dash components
      * in callbacks. The ID needs to be unique across all of the
      * components in an app.
      */
     id: PropTypes.string,
+
     /**
      * Data from latest click event. Read-only.
      */
@@ -519,6 +319,13 @@ const graphPropTypes = {
         ]),
 
         /**
+         * Delay for registering a double-click event in ms. The
+         * minimum value is 100 and the maximum value is 1000. By
+         * default this is 300.
+         */
+        doubleClickDelay: PropTypes.number,
+
+        /**
          * New users see some hints about interactivity
          */
         showTips: PropTypes.bool,
@@ -560,6 +367,14 @@ const graphPropTypes = {
          * By default this is false.
          */
         showSendToCloud: PropTypes.bool,
+
+        /**
+         * Should we show a modebar button to send this data to a
+         * Plotly Chart Studio plot. If both this and showSendToCloud
+         * are selected, only showEditInChartStudio will be
+         * honored. By default this is false.
+         */
+        showEditInChartStudio: PropTypes.bool,
 
         /**
          * Remove mode bar button by name.
@@ -678,7 +493,7 @@ const graphPropTypes = {
     }),
 };
 
-const graphDefaultProps = {
+export const graphDefaultProps = {
     clickData: null,
     clickAnnotationData: null,
     hoverData: null,
@@ -686,7 +501,11 @@ const graphDefaultProps = {
     relayoutData: null,
     extendData: null,
     restyleData: null,
-    figure: {data: [], layout: {}, frames: []},
+    figure: {
+        data: [],
+        layout: {},
+        frames: [],
+    },
     animate: false,
     animation_options: {
         frame: {
