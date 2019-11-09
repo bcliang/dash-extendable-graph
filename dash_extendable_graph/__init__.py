@@ -31,14 +31,35 @@ _this_module = _sys.modules[__name__]
 
 _js_dist = [
     {
-        'relative_package_path': 'dash_extendable_graph.min.js',
-        'dev_package_path': 'dash_extendable_graph.dev.js',
-        'external_url': 'https://unpkg.com/{0}@{2}/{1}/{1}.min.js'.format(
+        'relative_package_path': 'async~extgraph.js',
+        'external_url': 'https://unpkg.com/{0}@{2}/{1}/async~extgraph.js'.format(
             package_name, __name__, __version__),
-        'namespace': package_name
+        'namespace': package_name,
+        'async': True
+    },
+    {
+        'relative_package_path': 'plotly-1.50.1.min.js',
+        'external_url': 'https://unpkg.com/{0}@{2}/{1}/plotly-1.50.1.min.js'.format(
+            package_name, __name__, __version__),
+        'namespace': package_name,
+        'async': 'eager'
+    },
+    {
+        'relative_package_path': 'async~plotlyjs.js',
+        'external_url': (
+            'https://unpkg.com/{0}@{2}/{1}/async~plotlyjs.js'
+        ).format(package_name, __name__, __version__),
+        'namespace': package_name,
+        'async': 'lazy'
     },
 ]
-
+""" {
+            'relative_package_path': 'dash_extendable_graph.min.js',
+            'dev_package_path': 'dash_extendable_graph.dev.js',
+            'external_url': 'https://unpkg.com/{0}@{2}/{1}/{1}.min.js'.format(
+                package_name, __name__, __version__),
+            'namespace': package_name
+        }, """
 _css_dist = []
 
 
