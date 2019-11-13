@@ -26,7 +26,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "plotly.js": "1.50.1",
+    "plotly.js": "1.51.1",
     "ramda": "^0.26.1"
   },
   "devDependencies": {
