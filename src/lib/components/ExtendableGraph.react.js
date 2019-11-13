@@ -115,7 +115,7 @@ class ExtendableGraphComponent extends PureComponent {
     }
 }
 
-export const graphPropTypes = {
+ExtendableGraph.propTypes = {
     /**
      * The ID of this component, used to identify dash components
      * in callbacks. The ID needs to be unique across all of the
@@ -493,7 +493,7 @@ export const graphPropTypes = {
     }),
 };
 
-export const graphDefaultProps = {
+ExtendableGraph.defaultProps = {
     clickData: null,
     clickAnnotationData: null,
     hoverData: null,
@@ -520,7 +520,6 @@ export const graphDefaultProps = {
     config: {},
 };
 
-ExtendableGraph.propTypes = graphPropTypes;
-ExtendableGraph.defaultProps = graphDefaultProps;
-
+export const graphPropTypes = ExtendableGraph.propTypes;
+export const graphDefaultProps = ExtendableGraph.defaultProps;
 export default ExtendableGraph;

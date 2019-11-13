@@ -12,10 +12,10 @@ class Controller extends Component {
     constructor() {
         super();
         this.timer = this.timer.bind(this);
-        this.state = {'x': 0};
+        this.state = {'x': 0, 'y': 0};
     }
     timer() {
-    	  this.setState({'x': (this.state.x + 1),
+    	  this.setState({'x': this.state.x + 1,
                        'y': 5*Math.random()});
     }
     componentDidMount() {

@@ -87,7 +87,6 @@ class ExtendableGraph extends Component {
     plot(props) {
         const {figure, animate, animation_options, config} = props;
         const gd = this.gd.current;
-
         if (
             animate &&
             this._hasPlotted &&
@@ -131,18 +130,19 @@ class ExtendableGraph extends Component {
         const gd = this.gd.current;
         let updateData, traceIndices, maxPoints;
 
-        if (extendData) {
-            if (gd.data.length < 1) {
-                // figure has no pre-existing data. redirect to plot()
-                props.figure.data = extendData;
-                clearExtendData();
-                return this.plot(props);
-            }
-
+        if (extendData.length > 0) {
+            console.log('extend:extendData', extendData);
             if (Array.isArray(extendData) && Array.isArray(extendData[0])) {
                 [updateData, traceIndices, maxPoints] = extendData;
             } else {
                 updateData = extendData;
+            }
+            console.log('extend:traceIndices', traceIndices);
+            clearExtendData();
+            if (gd.data.length < 1) {
+                // figure has no pre-existing data. redirect to plot()
+                props.figure.data = updateData;
+                return this.plot(props);
             }
 
             if (!traceIndices) {
@@ -160,6 +160,7 @@ class ExtendableGraph extends Component {
 
             for (const [i, value] of updateData.entries()) {
                 const updateObject = createDataObject(value);
+                console.log('extending trace ', i, ': ', updateObject);
                 if (i < updateData.length - 1) {
                     if (traceIndices[i] < gd.data.length) {
                         Plotly.extendTraces(
@@ -169,7 +170,13 @@ class ExtendableGraph extends Component {
                             maxPoints
                         );
                     } else {
-                        Plotly.addTraces(gd, value);
+                        console.log(
+                            '[',
+                            i,
+                            '] #1 adding instead of extending:',
+                            updateObject
+                        );
+                        Plotly.addTraces(gd, updateObject);
                     }
                 } else {
                     if (traceIndices[i] < gd.data.length) {
@@ -180,11 +187,15 @@ class ExtendableGraph extends Component {
                             maxPoints
                         );
                     }
-                    return Plotly.addTraces(gd, value);
+                    console.log(
+                        '[',
+                        i,
+                        '] #2 adding instead of extending:',
+                        updateObject
+                    );
+                    return Plotly.addTraces(gd, updateObject);
                 }
             }
-
-            clearExtendData();
         }
 
         return this.plot(props);
