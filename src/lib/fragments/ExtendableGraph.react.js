@@ -130,38 +130,37 @@ class ExtendableGraph extends Component {
         const gd = this.gd.current;
         let updateData, traceIndices, maxPoints;
 
-        if (extendData.length > 0) {
-            console.log('extend:extendData', extendData);
-            if (Array.isArray(extendData) && Array.isArray(extendData[0])) {
-                [updateData, traceIndices, maxPoints] = extendData;
-            } else {
-                updateData = extendData;
-            }
-            console.log('extend:traceIndices', traceIndices);
-            clearExtendData();
-            if (gd.data.length < 1) {
-                // figure has no pre-existing data. redirect to plot()
-                props.figure.data = updateData;
-                return this.plot(props);
-            }
-
-            if (!traceIndices) {
-                traceIndices = Array.from(Array(updateData.length).keys());
-            }
-
-            function createDataObject(data) {
-                const dataprops = Object.keys(data);
-                const ret = {};
-                for (let i = 0; i < dataprops.length; i++) {
-                    ret[dataprops[i]] = [data[dataprops[i]]];
+        for (const extend of extendData) {
+            if (extend.length > 0) {
+                if (Array.isArray(extend) && Array.isArray(extend[0])) {
+                    [updateData, traceIndices, maxPoints] = extend;
+                } else {
+                    updateData = extend;
                 }
-                return ret;
-            }
+                clearExtendData();
 
-            for (const [i, value] of updateData.entries()) {
-                const updateObject = createDataObject(value);
-                console.log('extending trace ', i, ': ', updateObject);
-                if (i < updateData.length - 1) {
+                if (gd.data.length < 1) {
+                    // figure has no pre-existing data. redirect to plot()
+                    props.figure.data = updateData;
+                    return this.plot(props);
+                }
+
+                if (!traceIndices) {
+                    traceIndices = Array.from(Array(updateData.length).keys());
+                }
+
+                function createDataObject(data) {
+                    const dataprops = Object.keys(data);
+                    const ret = {};
+                    for (let i = 0; i < dataprops.length; i++) {
+                        ret[dataprops[i]] = [data[dataprops[i]]];
+                    }
+                    return ret;
+                }
+
+                for (const [i, value] of updateData.entries()) {
+                    const updateObject = createDataObject(value);
+
                     if (traceIndices[i] < gd.data.length) {
                         Plotly.extendTraces(
                             gd,
@@ -170,30 +169,8 @@ class ExtendableGraph extends Component {
                             maxPoints
                         );
                     } else {
-                        console.log(
-                            '[',
-                            i,
-                            '] #1 adding instead of extending:',
-                            updateObject
-                        );
-                        Plotly.addTraces(gd, updateObject);
+                        Plotly.addTraces(gd, value);
                     }
-                } else {
-                    if (traceIndices[i] < gd.data.length) {
-                        return Plotly.extendTraces(
-                            gd,
-                            updateObject,
-                            [traceIndices[i]],
-                            maxPoints
-                        );
-                    }
-                    console.log(
-                        '[',
-                        i,
-                        '] #2 adding instead of extending:',
-                        updateObject
-                    );
-                    return Plotly.addTraces(gd, updateObject);
                 }
             }
         }

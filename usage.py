@@ -112,7 +112,7 @@ def update_add_then_extend_trace(n_intervals, existing):
               [Input('interval_extendablegraph_update', 'n_intervals')],
               [State('extendablegraph_example5', 'figure')])
 def update_add_then_extend_trace(n_intervals, existing):
-    x_new = existing['data'][0]['x'][-1] + 1
+    x_new = existing['data'][0]['x'][-1] + 2
     return [dict(x=[x_new], y=[random.random()]), dict(y=[random.random()])], [0, 1]
 
 

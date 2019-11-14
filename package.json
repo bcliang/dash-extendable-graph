@@ -12,12 +12,12 @@
     "build:js-dev": "wp --config config/webpack.config.js --mode development",
     "build:js": "npm run lint && wp --config config/webpack.config.js --mode production",
     "build:py": "dash-generate-components ./src/lib/components dash_extendable_graph",
-    "build": "npm run build:js && npm run generator && npm run build:js-dev && npm run build:py",
+    "build": "npm run generator && npm run build:js && npm run build:js-dev && npm run build:py",
     "lint": "eslint src",
     "lint:py": "flake8 --ignore=E501,F401,F841,F811 tests",
     "format": "prettier --config .prettierrc --write src/**/*.js src/**/**/*.js",
     "test": "run-s -c test:py lint format lint:py",
-    "test:py": "pytest tests",
+    "test:py": "pytest --headless tests",
     "build:watch": "watch \"npm run build\" src --wait 5"
   },
   "author": {

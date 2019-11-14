@@ -61,7 +61,8 @@ class ExtendableGraph extends Component {
 
         if (
             nextProps.extendData &&
-            this.props.extendData !== nextProps.extendData
+            JSON.stringify(this.props.extendData) !==
+                JSON.stringify(nextProps.extendData)
         ) {
             extendData.push(nextProps.extendData);
         } else {
