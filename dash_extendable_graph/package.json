@@ -1,17 +1,18 @@
 {
   "name": "dash_extendable_graph",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "description": "plotly-dash custom component. Adds Plotly.extendTraces() support to dash_core_components.Graph()",
   "homepage": "https://github.com/bcliang/dash-extendable-graph",
   "main": "build/index.js",
   "scripts": {
     "start": "wp --config config/serve.config.js",
     "validate-init": "python _validate_init.py",
+    "generator": "node generator/plotly.js",
     "prepare": "npm run validate-init && npm run lint && npm run lint:py && npm run format && npm run build",
     "build:js-dev": "wp --config config/webpack.config.js --mode development",
     "build:js": "npm run lint && wp --config config/webpack.config.js --mode production",
     "build:py": "dash-generate-components ./src/lib/components dash_extendable_graph",
-    "build": "npm run build:js && npm run build:js-dev && npm run build:py",
+    "build": "npm run generator && npm run build:js && npm run build:js-dev && npm run build:py",
     "lint": "eslint src",
     "lint:py": "flake8 --ignore=E501,F401,F841,F811 tests",
     "format": "prettier --config .prettierrc --write src/**/*.js src/**/**/*.js",
@@ -25,7 +26,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "ramda": "^0.26.1"
+    "ramda": "^0.26.1",
+    "plotly.js": "1.51.1"
   },
   "devDependencies": {
     "@babel/core": "^7.5.4",
