@@ -15,4 +15,4 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - [#33](https://github.com/bcliang/dash-extendable-graph/pull/33) Component fix for dash versions using async components (>= 1.4.0)
 
 ### Added
-- [#34](https://github.com/plotly/dash-extendable-graph/pull/33) Introduce initial changelog file for 1.1.0
+- [#34](https://github.com/bcliang/dash-extendable-graph/pull/34) Introduce initial changelog file for 1.1.0
