@@ -2,8 +2,9 @@
 # Switch into a virtual environment
 # pip install -r requirements.txt
 
-chromedriver-binary==76.0.3809.126
 dash[testing]
+pyyaml
+requests
 ipdb
 flake8
 pylint
