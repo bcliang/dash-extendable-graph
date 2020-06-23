@@ -8,7 +8,7 @@ const plotlyJsVersion =
 
 fs.copyFile(
     'node_modules/plotly.js/dist/plotly.min.js',
-    `dash_extendable_graph/plotly-${plotlyJsVersion}.min.js`,
+    `dash_extendable_graph/plotly.min.js`,
     err => {
         if (err) {
             throw err;
