@@ -48,6 +48,7 @@
     "react": "^16.13.0",
     "react-docgen": "^4.1.1",
     "react-dom": "^16.13.0",
+    "react-resize-detector": "^4.2.1",
     "style-loader": "^0.23.1",
     "styled-jsx": "^3.3.0",
     "webpack": "^4.43.0",
