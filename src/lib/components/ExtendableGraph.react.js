@@ -117,9 +117,6 @@ class ExtendableGraph extends Component {
 
         figure = props._dashprivate_transformFigure(figure, gd);
         config = props._dashprivate_transformConfig(config, gd);
-        
-        console.log('responsive,', responsive)
-        console.log('figure,', figure);
 
         if (
             animate &&
@@ -141,7 +138,6 @@ class ExtendableGraph extends Component {
             config: configClone,
         }).then(() => {
             const gd = this.gd.current;
-            console.log('gd,', gd);
 
             // double-check gd hasn't been unmounted
             if (!gd) {
