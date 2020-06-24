@@ -195,7 +195,9 @@ class ExtendableGraph extends Component {
                 return ret;
             }
 
-            for (const [i, value] of updateData.entries()) {
+            gd.classList.add('dash-graph--pending');
+
+            for (const [i, value] of updateData.entries()) {                
                 const updateObject = createDataObject(value);
                 if (i < updateData.length - 1) {
                     if (traceIndices[i] < gd.data.length) {
@@ -215,9 +217,25 @@ class ExtendableGraph extends Component {
                             updateObject,
                             [traceIndices[i]],
                             maxPoints
-                        );
+                        ).then(() => {
+                            const gd = this.gd.current;
+
+                            // double-check gd hasn't been unmounted
+                            if (!gd) {
+                                return;
+                            }
+                            gd.classList.remove('dash-graph--pending');
+                        });
                     }
-                    return Plotly.addTraces(gd, value);
+                    return Plotly.addTraces(gd, value).then(() => {
+                        const gd = this.gd.current;
+
+                        // double-check gd hasn't been unmounted
+                        if (!gd) {
+                            return;
+                        }
+                        gd.classList.remove('dash-graph--pending');
+                    });
                 }
             }
         }
