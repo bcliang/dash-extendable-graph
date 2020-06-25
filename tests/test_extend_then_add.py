@@ -10,7 +10,7 @@ import dash_core_components as dcc
 import random
 import json
 
-# extending a trace works
+# extend an existing trace and add a trace in the same callback
 
 
 def test_extg003_extend_then_add_trace(dash_duo):
@@ -55,7 +55,7 @@ def test_extg003_extend_then_add_trace(dash_duo):
         return json.dumps(figure['data'])
 
     dash_duo.start_server(app)
-    graph = dash_duo.find_element("#trace_will_extend_and_add")
+    dash_duo.find_element("#trace_will_extend_and_add")
 
     comparison = json.dumps([
         dict(
