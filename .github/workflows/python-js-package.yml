@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.5, 3.6, 3.7, 3.8]
+        python-version: 3.8
 
     steps:
     - uses: actions/checkout@v2
@@ -39,7 +39,6 @@ jobs:
         flake8 dash_extendable_graph --count --select=E9,F63,F7,F82 --show-source --statistics
         flake8 tests --count --select=E9,F63,F7,F82 --show-source --statistics
         # stop build on formatting errors, with some ignored rules
-        flake8 dash_extendable_graph --count --ignore=E222,E501,W503,F401,F403,F841,F811 --show-source --statistics
         flake8 tests --count --ignore=E222,E501,W503,F401,F841,F811 --show-source --statistics
     - name: eslint
       uses: mrdivyansh/eslint-action@1.0.6
