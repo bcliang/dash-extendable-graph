@@ -1,15 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {
-    contains,
-    filter,
-    mergeDeepRight,
-    has,
-    isNil,
-    type,
-    omit,
-    equals,
-} from 'ramda';
+import {mergeDeepRight, isNil, type, omit, equals} from 'ramda';
 import ResizeDetector from 'react-resize-detector';
 import {
     privatePropTypes,
@@ -23,69 +14,8 @@ import {
     RESPONSIVE_CONFIG,
     UNRESPONSIVE_CONFIG,
 } from '../fragments/ExtendableGraph.responsiveprops';
-
+import {filterEventData} from '../fragments/ExtendableGraph.events';
 /* global Plotly:true */
-
-const filterEventData = (gd, eventData, event) => {
-    let filteredEventData;
-    if (contains(event, ['click', 'hover', 'selected'])) {
-        const points = [];
-
-        if (isNil(eventData)) {
-            return null;
-        }
-
-        /*
-         * remove `data`, `layout`, `xaxis`, etc
-         * objects from the event data since they're so big
-         * and cause JSON stringify ciricular structure errors.
-         *
-         * also, pull down the `customdata` point from the data array
-         * into the event object
-         */
-        const data = gd.data;
-
-        for (let i = 0; i < eventData.points.length; i++) {
-            const fullPoint = eventData.points[i];
-            const pointData = filter(function (o) {
-                return !contains(type(o), ['Object', 'Array']);
-            }, fullPoint);
-            if (
-                has('curveNumber', fullPoint) &&
-                has('pointNumber', fullPoint) &&
-                has('customdata', data[pointData.curveNumber])
-            ) {
-                pointData.customdata =
-                    data[pointData.curveNumber].customdata[
-                        fullPoint.pointNumber
-                    ];
-            }
-
-            // specific to histogram. see https://github.com/plotly/plotly.js/pull/2113/
-            if (has('pointNumbers', fullPoint)) {
-                pointData.pointNumbers = fullPoint.pointNumbers;
-            }
-
-            points[i] = pointData;
-        }
-        filteredEventData = {points};
-    } else if (event === 'relayout' || event === 'restyle') {
-        /*
-         * relayout shouldn't include any big objects
-         * it will usually just contain the ranges of the axes like
-         * "xaxis.range[0]": 0.7715822247381828,
-         * "xaxis.range[1]": 3.0095292008680063`
-         */
-        filteredEventData = eventData;
-    }
-    if (has('range', eventData)) {
-        filteredEventData.range = eventData.range;
-    }
-    if (has('lassoPoints', eventData)) {
-        filteredEventData.lassoPoints = eventData.lassoPoints;
-    }
-    return filteredEventData;
-};
 
 /**
  * ExtendableGraph can be used to render any plotly.js-powered data vis.
@@ -197,7 +127,7 @@ class ExtendableGraph extends Component {
 
             gd.classList.add('dash-graph--pending');
 
-            for (const [i, value] of updateData.entries()) {                
+            for (const [i, value] of updateData.entries()) {
                 const updateObject = createDataObject(value);
                 if (i < updateData.length - 1) {
                     if (traceIndices[i] < gd.data.length) {
