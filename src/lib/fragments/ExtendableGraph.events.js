@@ -1,5 +1,13 @@
 import {contains, filter, has, isNil, type} from 'ramda';
 
+/**
+ * Data handler for events, geared towards filtering the Graph view
+ *
+ * Callbacks:
+ *  - mouse actions: click, hover, selection (see ExtendableGraph.bindEvents(..) method)
+ *  - plotlyjs built-in (e.g. from the plotly toolbar): range, lasso
+ *  - ExtendableGraph properties: relayout, restyle
+ */
 export const filterEventData = (gd, eventData, event) => {
     let filteredEventData;
     if (contains(event, ['click', 'hover', 'selected'])) {
