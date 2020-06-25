@@ -53,6 +53,7 @@ module.exports = (env, argv) => {
         },
         externals,
         module: {
+            noParse: /node_modules[\\\/]plotly.js/,
             rules: [
                 {
                     test: /\.js$/,
@@ -73,6 +74,11 @@ module.exports = (env, argv) => {
                     ],
                 },
             ],
+        },
+        resolve: {
+            alias: {
+                'plotly.js': 'plotly.js/dist/plotly.min.js'
+            }
         },
         devtool,
     };

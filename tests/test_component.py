@@ -10,7 +10,7 @@ import dash_core_components as dcc
 import random
 import json
 
-# extending a trace works
+# component will render
 
 
 def test_extg001_render_component(dash_duo):
@@ -50,7 +50,7 @@ def test_extg001_render_component(dash_duo):
         return json.dumps(figure['data'][0])
 
     dash_duo.start_server(app)
-    graph = dash_duo.find_element("#trace_will_extend")
+    dash_duo.find_element("#trace_will_extend")
 
     comparison = json.dumps(
         dict(

@@ -10,7 +10,7 @@ import dash_core_components as dcc
 import random
 import json
 
-# extending a trace works
+# proper implementation of maximum number of points per trace
 
 
 def test_extg002_define_maxpoints(dash_duo):
@@ -50,7 +50,7 @@ def test_extg002_define_maxpoints(dash_duo):
         return json.dumps(figure['data'])
 
     dash_duo.start_server(app)
-    graph = dash_duo.find_element("#trace_will_extend_with_window")
+    dash_duo.find_element("#trace_will_extend_with_window")
 
     comparison = json.dumps([
         dict(y=[0]),

@@ -10,7 +10,7 @@ import dash_core_components as dcc
 import random
 import json
 
-# extending a trace works
+# extending a specific trace (trace indices)
 
 
 def test_extg004_extend_trace_selectively(dash_duo):
@@ -48,7 +48,7 @@ def test_extg004_extend_trace_selectively(dash_duo):
         return json.dumps(figure['data'])
 
     dash_duo.start_server(app)
-    graph = dash_duo.find_element("#extend_trace_selectively")
+    dash_duo.find_element("#extend_trace_selectively")
 
     comparison = json.dumps(
         [dict(y=[0]),

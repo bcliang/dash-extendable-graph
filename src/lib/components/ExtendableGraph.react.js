@@ -1,68 +1,21 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import {contains, filter, clone, has, isNil, type, omit, equals} from 'ramda';
+import {mergeDeepRight, isNil, type, omit, equals} from 'ramda';
+import ResizeDetector from 'react-resize-detector';
+import {
+    privatePropTypes,
+    privateDefaultProps,
+} from '../fragments/ExtendableGraph.privateprops';
+import {
+    AUTO_LAYOUT,
+    RESPONSIVE_LAYOUT,
+    UNRESPONSIVE_LAYOUT,
+    AUTO_CONFIG,
+    RESPONSIVE_CONFIG,
+    UNRESPONSIVE_CONFIG,
+} from '../fragments/ExtendableGraph.responsiveprops';
+import {filterEventData} from '../fragments/ExtendableGraph.events';
 /* global Plotly:true */
-
-const filterEventData = (gd, eventData, event) => {
-    let filteredEventData;
-    if (contains(event, ['click', 'hover', 'selected'])) {
-        const points = [];
-
-        if (isNil(eventData)) {
-            return null;
-        }
-
-        /*
-         * remove `data`, `layout`, `xaxis`, etc
-         * objects from the event data since they're so big
-         * and cause JSON stringify ciricular structure errors.
-         *
-         * also, pull down the `customdata` point from the data array
-         * into the event object
-         */
-        const data = gd.data;
-
-        for (let i = 0; i < eventData.points.length; i++) {
-            const fullPoint = eventData.points[i];
-            const pointData = filter(function(o) {
-                return !contains(type(o), ['Object', 'Array']);
-            }, fullPoint);
-            if (
-                has('curveNumber', fullPoint) &&
-                has('pointNumber', fullPoint) &&
-                has('customdata', data[pointData.curveNumber])
-            ) {
-                pointData.customdata =
-                    data[pointData.curveNumber].customdata[
-                        fullPoint.pointNumber
-                    ];
-            }
-
-            // specific to histogram. see https://github.com/plotly/plotly.js/pull/2113/
-            if (has('pointNumbers', fullPoint)) {
-                pointData.pointNumbers = fullPoint.pointNumbers;
-            }
-
-            points[i] = pointData;
-        }
-        filteredEventData = {points};
-    } else if (event === 'relayout' || event === 'restyle') {
-        /*
-         * relayout shouldn't include any big objects
-         * it will usually just contain the ranges of the axes like
-         * "xaxis.range[0]": 0.7715822247381828,
-         * "xaxis.range[1]": 3.0095292008680063`
-         */
-        filteredEventData = eventData;
-    }
-    if (has('range', eventData)) {
-        filteredEventData.range = eventData.range;
-    }
-    if (has('lassoPoints', eventData)) {
-        filteredEventData.lassoPoints = eventData.lassoPoints;
-    }
-    return filteredEventData;
-};
 
 /**
  * ExtendableGraph can be used to render any plotly.js-powered data vis.
@@ -77,12 +30,23 @@ class ExtendableGraph extends Component {
         this.bindEvents = this.bindEvents.bind(this);
         this._hasPlotted = false;
         this._prevGd = null;
+
+        this.bindEvents = this.bindEvents.bind(this);
+        this.getConfig = this.getConfig.bind(this);
+        this.getConfigOverride = this.getConfigOverride.bind(this);
+        this.getLayout = this.getLayout.bind(this);
+        this.getLayoutOverride = this.getLayoutOverride.bind(this);
         this.graphResize = this.graphResize.bind(this);
+        this.isResponsive = this.isResponsive.bind(this);
     }
 
     plot(props) {
-        const {figure, animate, animation_options, config} = props;
+        let {figure, config} = props;
+        const {animate, animation_options, responsive} = props;
         const gd = this.gd.current;
+
+        figure = props._dashprivate_transformFigure(figure, gd);
+        config = props._dashprivate_transformConfig(config, gd);
 
         if (
             animate &&
@@ -91,11 +55,17 @@ class ExtendableGraph extends Component {
         ) {
             return Plotly.animate(gd, figure, animation_options);
         }
+
+        const configClone = this.getConfig(config, responsive);
+        const layoutClone = this.getLayout(figure.layout, responsive);
+
+        gd.classList.add('dash-graph--pending');
+
         return Plotly.react(gd, {
             data: figure.data,
-            layout: clone(figure.layout),
+            layout: layoutClone,
             frames: figure.frames,
-            config: config,
+            config: configClone,
         }).then(() => {
             const gd = this.gd.current;
 
@@ -103,6 +73,8 @@ class ExtendableGraph extends Component {
             if (!gd) {
                 return;
             }
+
+            gd.classList.remove('dash-graph--pending');
 
             // in case we've made a new DOM element, transfer events
             if (this._hasPlotted && gd !== this._prevGd) {
@@ -115,7 +87,7 @@ class ExtendableGraph extends Component {
 
             if (!this._hasPlotted) {
                 this.bindEvents();
-                Plotly.Plots.resize(gd);
+                this.graphResize(true);
                 this._hasPlotted = true;
                 this._prevGd = gd;
             }
@@ -153,6 +125,8 @@ class ExtendableGraph extends Component {
                 return ret;
             }
 
+            gd.classList.add('dash-graph--pending');
+
             for (const [i, value] of updateData.entries()) {
                 const updateObject = createDataObject(value);
                 if (i < updateData.length - 1) {
@@ -173,9 +147,25 @@ class ExtendableGraph extends Component {
                             updateObject,
                             [traceIndices[i]],
                             maxPoints
-                        );
+                        ).then(() => {
+                            const gd = this.gd.current;
+
+                            // double-check gd hasn't been unmounted
+                            if (!gd) {
+                                return;
+                            }
+                            gd.classList.remove('dash-graph--pending');
+                        });
                     }
-                    return Plotly.addTraces(gd, value);
+                    return Plotly.addTraces(gd, value).then(() => {
+                        const gd = this.gd.current;
+
+                        // double-check gd hasn't been unmounted
+                        if (!gd) {
+                            return;
+                        }
+                        gd.classList.remove('dash-graph--pending');
+                    });
                 }
             }
         }
@@ -183,11 +173,71 @@ class ExtendableGraph extends Component {
         return this.plot(props);
     }
 
-    graphResize() {
-        const gd = this.gd.current;
-        if (gd) {
-            Plotly.Plots.resize(gd);
+    getConfig(config, responsive) {
+        return mergeDeepRight(config, this.getConfigOverride(responsive));
+    }
+
+    getLayout(layout, responsive) {
+        if (!layout) {
+            return layout;
         }
+
+        return mergeDeepRight(layout, this.getLayoutOverride(responsive));
+    }
+
+    getConfigOverride(responsive) {
+        switch (responsive) {
+            case false:
+                return UNRESPONSIVE_CONFIG;
+            case true:
+                return RESPONSIVE_CONFIG;
+            default:
+                return AUTO_CONFIG;
+        }
+    }
+
+    getLayoutOverride(responsive) {
+        switch (responsive) {
+            case false:
+                return UNRESPONSIVE_LAYOUT;
+            case true:
+                return RESPONSIVE_LAYOUT;
+            default:
+                return AUTO_LAYOUT;
+        }
+    }
+
+    isResponsive(props) {
+        const {config, figure, responsive} = props;
+
+        if (type(responsive) === 'Boolean') {
+            return responsive;
+        }
+
+        return Boolean(
+            config.responsive &&
+                (!figure.layout ||
+                    ((figure.layout.autosize ||
+                        isNil(figure.layout.autosize)) &&
+                        (isNil(figure.layout.height) ||
+                            isNil(figure.layout.width))))
+        );
+    }
+
+    graphResize(force = false) {
+        if (!force && !this.isResponsive(this.props)) {
+            return;
+        }
+
+        const gd = this.gd.current;
+        if (!gd) {
+            return;
+        }
+
+        gd.classList.add('dash-graph--pending');
+        Plotly.Plots.resize(gd)
+            .catch(() => {})
+            .finally(() => gd.classList.remove('dash-graph--pending'));
     }
 
     bindEvents() {
@@ -202,26 +252,26 @@ class ExtendableGraph extends Component {
 
         const gd = this.gd.current;
 
-        gd.on('plotly_click', eventData => {
+        gd.on('plotly_click', (eventData) => {
             const clickData = filterEventData(gd, eventData, 'click');
             if (!isNil(clickData)) {
                 setProps({clickData});
             }
         });
-        gd.on('plotly_clickannotation', eventData => {
+        gd.on('plotly_clickannotation', (eventData) => {
             const clickAnnotationData = omit(
                 ['event', 'fullAnnotation'],
                 eventData
             );
             setProps({clickAnnotationData});
         });
-        gd.on('plotly_hover', eventData => {
+        gd.on('plotly_hover', (eventData) => {
             const hover = filterEventData(gd, eventData, 'hover');
             if (!isNil(hover) && !equals(hover, hoverData)) {
                 setProps({hoverData: hover});
             }
         });
-        gd.on('plotly_selected', eventData => {
+        gd.on('plotly_selected', (eventData) => {
             const selected = filterEventData(gd, eventData, 'selected');
             if (!isNil(selected) && !equals(selected, selectedData)) {
                 setProps({selectedData: selected});
@@ -230,13 +280,13 @@ class ExtendableGraph extends Component {
         gd.on('plotly_deselect', () => {
             setProps({selectedData: null});
         });
-        gd.on('plotly_relayout', eventData => {
+        gd.on('plotly_relayout', (eventData) => {
             const relayout = filterEventData(gd, eventData, 'relayout');
             if (!isNil(relayout) && !equals(relayout, relayoutData)) {
                 setProps({relayoutData: relayout});
             }
         });
-        gd.on('plotly_restyle', eventData => {
+        gd.on('plotly_restyle', (eventData) => {
             const restyle = filterEventData(gd, eventData, 'restyle');
             if (!isNil(restyle) && !equals(restyle, restyleData)) {
                 setProps({restyleData: restyle});
@@ -250,9 +300,7 @@ class ExtendableGraph extends Component {
     }
 
     componentDidMount() {
-        this.plot(this.props).then(() => {
-            window.addEventListener('resize', this.graphResize);
-        });
+        this.plot(this.props);
     }
 
     componentWillUnmount() {
@@ -263,7 +311,6 @@ class ExtendableGraph extends Component {
                 Plotly.purge(gd);
             }
         }
-        window.removeEventListener('resize', this.graphResize);
     }
 
     shouldComponentUpdate(nextProps) {
@@ -273,7 +320,7 @@ class ExtendableGraph extends Component {
         );
     }
 
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
         const idChanged = this.props.id !== nextProps.id;
         if (idChanged) {
             /*
@@ -283,7 +330,13 @@ class ExtendableGraph extends Component {
             return;
         }
 
-        if (this.props.figure !== nextProps.figure) {
+        if (
+            this.props.figure !== nextProps.figure ||
+            this.props._dashprivate_transformConfig !==
+                nextProps._dashprivate_transformConfig ||
+            this.props._dashprivate_transformFigure !==
+                nextProps._dashprivate_transformFigure
+        ) {
             this.plot(nextProps);
         }
 
@@ -303,26 +356,56 @@ class ExtendableGraph extends Component {
 
         return (
             <div
-                key={id}
                 id={id}
-                ref={this.gd}
+                key={id}
                 data-dash-is-loading={
                     (loading_state && loading_state.is_loading) || undefined
                 }
                 style={style}
                 className={className}
-            />
+            >
+                <ResizeDetector
+                    handleHeight={true}
+                    handleWidth={true}
+                    refreshMode="debounce"
+                    refreshOptions={{trailing: true}}
+                    refreshRate={50}
+                    onResize={this.graphResize}
+                />
+                <div ref={this.gd} style={{height: '100%', width: '100%'}} />
+            </div>
         );
     }
 }
 
 const graphPropTypes = {
+    ...privatePropTypes,
+
     /**
      * The ID of this component, used to identify dash components
      * in callbacks. The ID needs to be unique across all of the
      * components in an app.
      */
     id: PropTypes.string,
+
+    /**
+     * If True, the Plotly.js plot will be fully responsive to window resize
+     * and parent element resize event. This is achieved by overriding
+     * `config.responsive` to True, `figure.layout.autosize` to True and unsetting
+     * `figure.layout.height` and `figure.layout.width`.
+     * If False, the Plotly.js plot not be responsive to window resize and
+     * parent element resize event. This is achieved by overriding `config.responsive`
+     * to False and `figure.layout.autosize` to False.
+     * If 'auto' (default), the Graph will determine if the Plotly.js plot can be made fully
+     * responsive (True) or not (False) based on the values in `config.responsive`,
+     * `figure.layout.autosize`, `figure.layout.height`, `figure.layout.width`.
+     * This is the legacy behavior of the ExtendableGraph component.
+     *
+     * Needs to be combined with appropriate dimension / styling through the `style` prop
+     * to fully take effect.
+     */
+    responsive: PropTypes.oneOf([true, false, 'auto']),
+
     /**
      * Data from latest click event. Read-only.
      */
@@ -679,6 +762,7 @@ const graphPropTypes = {
 };
 
 const graphDefaultProps = {
+    ...privateDefaultProps,
     clickData: null,
     clickAnnotationData: null,
     hoverData: null,
@@ -687,6 +771,7 @@ const graphDefaultProps = {
     extendData: null,
     restyleData: null,
     figure: {data: [], layout: {}, frames: []},
+    responsive: 'auto',
     animate: false,
     animation_options: {
         frame: {

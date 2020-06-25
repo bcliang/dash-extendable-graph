@@ -10,7 +10,7 @@ import dash_core_components as dcc
 import random
 import json
 
-# extending a trace works
+# extend traces that are multiple types
 
 
 def test_extg005_multiple_trace_types(dash_duo):
@@ -44,7 +44,7 @@ def test_extg005_multiple_trace_types(dash_duo):
         return json.dumps(figure['data'])
 
     dash_duo.start_server(app)
-    graph = dash_duo.find_element("#multi_trace_types")
+    dash_duo.find_element("#multi_trace_types")
 
     comparison = json.dumps(
         [dict(x=[5, 6, 7, 8, 9],

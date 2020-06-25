@@ -38,9 +38,9 @@ _js_dist = [
         'namespace': package_name
     },
     {
-        'relative_package_path': 'plotly-1.51.1.min.js',
+        'relative_package_path': 'plotly.min.js',
         'external_url': (
-            'https://unpkg.com/{0}@{1}/{0}/plotly-1.51.1.min.js'
+            'https://unpkg.com/{0}@{1}/{0}/plotly.min.js'
         ).format(package_name, __version__),
         'namespace': package_name,
     },

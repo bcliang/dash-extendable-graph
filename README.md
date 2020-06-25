@@ -4,9 +4,11 @@
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/dash-extendable-graph.svg)
 [![PyPI - License](https://img.shields.io/pypi/l/dash-extendable-graph.svg)](./LICENSE)
 
-dash-extendable-graph is a Dash component library. This library contains a single component: `ExtendableGraph`. The component is a fork of the Graph() component of [dash-core-components](https://github.com/plotly/dash-core-components) (v 1.3.1). However, the `extendData` for this component has been modified to follow an api that matches the format of `figure['data']` (as opposed to the api defined `Graph.extendData` and `Plotly.extendTraces()`).
+dash-extendable-graph is a Dash component library. This library contains a single component: `ExtendableGraph`. The component is a fork of the Graph() component from [dash-core-components](https://github.com/plotly/dash-core-components) (version 1.3.1). Best efforts will be made to keep in sync with the upstream repository. 
 
-Note: As of version 1.1.0, `dash-extendable-graph` includes PlotlyJS as an internal dependency. Previously, the component assumed it would be used in conjunction with `dash-core-components`, but as of version 1.4.0, PlotlyJS is only available asynchronously when a Graph component exists on the page.
+The primary differentiation between ExtendableGraph and Graph components is the `extendData` callback. This component has been modified to follow an api that matches the format of `figure['data']` (as opposed to the api defined `Graph.extendData` and `Plotly.extendTraces()`).
+
+Note: As of version 1.1.0, `dash-extendable-graph` includes PlotlyJS as an internal dependency. Previously, the component assumed it would be used in conjunction with `dash-core-components`. As of `dash-core-components` version ^1.4.0, `PlotlyJS` is only available asynchronously when a Graph component exists on the page.
 
 ## Installation
 
@@ -96,8 +98,13 @@ $ npm install
 $ virtualenv venv
 $ . venv/bin/activate
 $ pip install -r requirements.txt
+```
+
+For developers:
+```
 $ pip install -r tests/requirements.txt
 ```
+
 2. Build
 ```bash
 $ npm run build
@@ -118,10 +125,10 @@ $ python usage.py
 Integration tests for the component can be found in `tests/`
 
 ```bash
-$pytest --headless tests
+$pytest tests
 ```
 
-(note: the `--headless` param runs tests without the GUI)
+Selenium test runner configuration options are located in `pytest.ini` (e.g. `--webdriver`, `--headless`). See `dash[testing]` documentation for more information on built-ins provided by the dash test fixture.
 
 ### Create a production build and publish:
 
