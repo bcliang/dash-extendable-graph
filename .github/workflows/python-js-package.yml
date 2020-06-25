@@ -40,10 +40,7 @@ jobs:
         # stop build on formatting errors, with some ignored rules
         flake8 tests --count --ignore=E222,E501,W503,F401,F841,F811 --show-source --statistics
     - name: eslint
-      uses: mrdivyansh/eslint-action@1.0.6
-      with:
-        eslint-rc: .eslintrc
-        execute-on-files: src
+      run: npm run lint
     - name: Validate MANIFEST.in
       run: python _validate_init.py
     - name: Code formatting (prettier)
