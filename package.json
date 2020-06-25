@@ -14,7 +14,7 @@
     "build:py": "dash-generate-components ./src/lib/components dash_extendable_graph",
     "build": "npm run generator && npm run build:js && npm run build:js-dev && npm run build:py",
     "lint": "eslint src",
-    "lint:py": "flake8 --ignore=E501,W503,F401,F841,F811 tests",
+    "lint:py": "flake8 --ignore=E222,E501,W503,F401,F403,F841,F811 tests dash_extendable_graph",
     "format": "prettier --config .prettierrc --write src/**/*.js src/**/**/*.js",
     "test": "run-s -c test:py lint format lint:py",
     "test:py": "pytest tests",
