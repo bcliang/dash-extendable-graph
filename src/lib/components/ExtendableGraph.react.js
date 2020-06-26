@@ -356,8 +356,6 @@ class ExtendableGraph extends Component {
 
         return (
             <div
-                id={id}
-                key={id}
                 data-dash-is-loading={
                     (loading_state && loading_state.is_loading) || undefined
                 }
@@ -372,7 +370,11 @@ class ExtendableGraph extends Component {
                     refreshRate={50}
                     onResize={this.graphResize}
                 />
-                <div ref={this.gd} style={{height: '100%', width: '100%'}} />
+                <div id={id}
+                    key={id}
+                    ref={this.gd} 
+                    style={{height: '100%', width: '100%'}} 
+                />
             </div>
         );
     }
