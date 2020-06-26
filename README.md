@@ -122,13 +122,43 @@ $ python usage.py
 
 ## Tests
 
-Integration tests for the component can be found in `tests/`
+### Run locally
 
+Run linting + integration tests in one command: 
+
+```bash 
+$npm run test
+```
+
+Or run tests individually:
+
+### Code style
+
+Uses `flake8` and `eslint`. Check `package.json`, `.eslintrc`, `.eslintignore` for configuration settings.
+```bash
+$npm run lint
+$npm run lint:py
+```
+
+Uses `prettier` for javascript formatting:
+```bash
+$npm run format
+```
+
+### Integration
+
+Integration tests for the component can be found in `tests/`
 ```bash
 $pytest tests
 ```
 
 Selenium test runner configuration options are located in `pytest.ini` (e.g. `--webdriver`, `--headless`). See `dash[testing]` documentation for more information on built-ins provided by the dash test fixture.
+
+## Continuous Integration via Github Actions
+
+This repository uses github actions to automate testing. CI is triggered on each (1) push and (2) pull request into `master`
+
+## Publishing
 
 ### Create a production build and publish:
 

@@ -1,2 +1,7 @@
+build/
+dist/
+node_modules/
+venv/
 *.css
 registerServiceWorker.js
+.npm
