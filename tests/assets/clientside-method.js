@@ -11,7 +11,7 @@ window.dash_clientside.pytest = {
         console.log(fig)
         // update only values within nested objects
         const update = {
-            "title.text": fig.layout.title.text + "-new"
+            "title.text": fig.layout.title + "-new"
         };
 
         //console.log("relayout: ", update);
