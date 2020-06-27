@@ -2,6 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/dash-extendable-graph.svg)](https://pypi.org/project/dash-extendable-graph/)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/dash-extendable-graph.svg)
+[![Code Quality](https://img.shields.io/lgtm/grade/javascript/g/bcliang/dash-extendable-graph.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/bcliang/dash-extendable-graph/context:javascript)
 [![PyPI - License](https://img.shields.io/pypi/l/dash-extendable-graph.svg)](./LICENSE)
 
 dash-extendable-graph is a Dash component library. This library contains a single component: `ExtendableGraph`. The component is a fork of the Graph() component from [dash-core-components](https://github.com/plotly/dash-core-components) (version 1.3.1). Best efforts will be made to keep in sync with the upstream repository. 
@@ -30,8 +31,8 @@ General examples may be found in `usage.py`
 
 ### extendData properties
 
-1. `updateData` [list]: a list of dictionaries, each containing representing trace data (e.g `dict(x=[1], y=[1])`)
-2. `traceIndices` [list, optional]: identify the traces that should be extended. If the specified trace index does not exist, the corresponding trace shall be appended to the figure.
+1. `updateData` [list]: a list of dictionaries, each dictionary representing trace data in a format matching `figure['data']` (e.g `dict(x=[1], y=[1])`)
+2. `traceIndices` [list, optional]: identify the traces that should be extended. If the specified trace index does not exist, a (new) corresponding trace shall be appended to the figure.
 3. `maxPoints` [number, optional]: define the maximum number of points to plot in the figure (per trace).
 
 Based on the [`Plotly.extendTraces()` api](https://github.com/plotly/plotly.js/blob/master/src/plot_api/plot_api.js#L979). However, the `updateData` key has been modified to better match the contents of `Plotly.plot()` (e.g. `Graph.figure`). Aside from following dash-familiar styling, this component allows the user to extend traces of different types in a single call (`Plotly.extendTraces()` takes a map of key:val and assumes all traces will share the same data keys).
