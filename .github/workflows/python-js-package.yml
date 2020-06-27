@@ -23,12 +23,9 @@ jobs:
     - run: pip install flake8
     - name: Check javascript styling
       run: npm run lint
-    - name: Check pycodestyle (flake8)
-      run: |
-      # check for syntax errors 
-      flake8 tests --count --select=E9,F63,F7,F82 --show-source --statistics
-      # check for formatting errors
-      flake8 tests --count --ignore=E222,E501,W503,F401,F841,F811 --show-source --statistics
+    - name: Check python syntax errors (flake8)
+      run: flake8 tests --count --select=E9,F63,F7,F82 --show-source --statistics
+      run: flake8 tests --count --ignore=E222,E501,W503,F401,F841,F811 --show-source --statistics
   build:
     runs-on: ubuntu-latest
     strategy:
