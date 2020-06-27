@@ -15,18 +15,20 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: '12.x'
-    - name: Check javscript formatting and linting (prettier, eslint)
-      run: |
-      npm install
-      npm run format
-      npm run lint
-    - name: Set up python
+    - name: Set up python 3.8
       uses: actions/setup-python@v2
       with:
         python-version: 3.8
+    - name: Install dependencies
+      run: |
+      pip install --ugprade flake8
+      npm install --ignore-scripts
+    - name: Check javascript styling
+      run: |
+      npm run format
+      npm run lint
     - name: Check pycodestyle (flake8)
       run: |
-      pip install --upgrade flake8
       # check for syntax errors 
       flake8 tests --count --select=E9,F63,F7,F82 --show-source --statistics
       # check for formatting errors
