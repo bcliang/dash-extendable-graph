@@ -52,8 +52,6 @@ jobs:
     - name: Build Validation
       run: python _validate_init.py
     - name: Check generated code for syntax errors (flake8)
-      run: |
-      # fail on syntax errors 
-      flake8 dash_extendable_graph --count --select=E9,F63,F7,F82 --show-source --statistics
+      run: flake8 dash_extendable_graph --count --select=E9,F63,F7,F82 --show-source --statistics
     - name: Run Integration Tests (pytest/dash[testing])
       run: pytest tests
