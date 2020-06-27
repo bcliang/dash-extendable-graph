@@ -10,28 +10,27 @@ jobs:
   prepare:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout the committed code.
-        uses: actions/checkout@v2
-      - name: Set up Node.js
-        uses: actions/setup-node@v1
-        with: 
-          node-version: '12.x'
-      - name: Check javscript formatting and linting (prettier, eslint)
-        run: |
-        npm install
-        npm run format
-        npm run lint
-      - name: Set up python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-      - name: Check pycodestyle (flake8)
-        run: |
-        pip install --upgrade flake8
-        # check for syntax errors 
-        flake8 tests --count --select=E9,F63,F7,F82 --show-source --statistics
-        # check for formatting errors
-        flake8 tests --count --ignore=E222,E501,W503,F401,F841,F811 --show-source --statistics
+    - uses: actions/checkout@v2
+    - name: Set up Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+    - name: Check javscript formatting and linting (prettier, eslint)
+      run: |
+      npm install
+      npm run format
+      npm run lint
+    - name: Set up python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Check pycodestyle (flake8)
+      run: |
+      pip install --upgrade flake8
+      # check for syntax errors 
+      flake8 tests --count --select=E9,F63,F7,F82 --show-source --statistics
+      # check for formatting errors
+      flake8 tests --count --ignore=E222,E501,W503,F401,F841,F811 --show-source --statistics
   build:
     runs-on: ubuntu-latest
     strategy:
