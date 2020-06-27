@@ -21,9 +21,11 @@ jobs:
         python-version: 3.8
     - run: npm install
     - run: pip install flake8
-    - name: Check javascript styling
+    - name: Checkstyle with prettier
+      run: npm run format
+    - name: Lint with eslint
       run: npm run lint
-    - name: Check python syntax errors (flake8)
+    - name: Lint with flake8
       run: flake8 tests --count --select=E9,F63,F7,F82 --show-source --statistics
     - name: Check python format errors (flake8)
       run: flake8 tests --count --ignore=E222,E501,W503,F401,F841,F811 --show-source --statistics
