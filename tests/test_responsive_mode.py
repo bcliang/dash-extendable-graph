@@ -62,14 +62,14 @@ def wait_for(condition_function, get_message=lambda: '', *args, **kwargs):
     raise WaitForTimeout(get_message())
 
 
-@pytest.mark.parametrize("responsive", [True, False, None])
-@pytest.mark.parametrize("autosize", [True, False, None])
+@pytest.mark.parametrize("responsive", [True, False])  # reduce iterations: None = False
+@pytest.mark.parametrize("autosize", [True, False])  # reduce iterations -- None = True
 @pytest.mark.parametrize("height", [600, None])
-@pytest.mark.parametrize("width", [600, None])
 @pytest.mark.parametrize("is_responsive", [True, False, 'auto'])
 def test_extg006_responsive(
-    dash_duo, responsive, autosize, height, width, is_responsive
+    dash_duo, responsive, autosize, height, is_responsive
 ):
+    width = 600  # reduce test iterations, just check vs height (ignore width)
     app = dash.Dash(__name__)
 
     header_style = dict(

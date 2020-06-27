@@ -22,9 +22,11 @@ setup(
     long_description_content_type='text/markdown',
     install_requires=[],
     classifiers=[
+        'Programming Language :: Python :: 3',
+        'Framework :: Dash',
+        'Framework :: Flask',
         'Environment :: Web Environment',
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
+        'Topic :: Scientific/Engineering :: Visualization',
     ]
 )
