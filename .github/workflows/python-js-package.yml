@@ -22,9 +22,7 @@ jobs:
     - run: npm install
     - run: pip install flake8
     - name: Check javascript styling
-      run: |
-      npm run format
-      npm run lint
+      run: npm run lint
     - name: Check pycodestyle (flake8)
       run: |
       # check for syntax errors 
