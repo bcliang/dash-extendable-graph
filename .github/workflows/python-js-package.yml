@@ -1,12 +1,43 @@
 # This workflow will install Python dependencies, run tests and lint with a variety of Python versions
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: Dash Component package
+name: Continuous Integration Workflow
 on:
   pull_request:
     branches: [ master ]
 
 jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the committed code.
+        uses: actions/checkout@v2
+      - name: Set up Node.js
+        uses: actions/setup-node@v1
+        with: 
+          node-version: '12.x'
+      - name: Set up python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install dependencies
+        run: |
+        python -m pip install --upgrade pip
+        pip install flake8
+        npm ci --ignore-scripts
+      - name: Run prettier
+        run: npm run format
+      - name: Check pycodestyle (flake8)
+        run: |
+        # fail on syntax errors 
+        flake8 dash_extendable_graph --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 tests --count --select=E9,F63,F7,F82 --show-source --statistics
+        # fail on formatting errors
+        flake8 tests --count --ignore=E222,E501,W503,F401,F841,F811 --show-source --statistics
+      - name: Check javascript code style
+        run: |
+        # eslint rules in .eslintrc
+        npm run lint
   build:
     runs-on: ubuntu-latest
     strategy:
@@ -27,18 +58,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -r tests/requirements.txt
-        npm install
-    - name: pycodestyle (flake8)
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 dash_extendable_graph --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 tests --count --select=E9,F63,F7,F82 --show-source --statistics
-        # stop build on formatting errors, with some ignored rules
-        flake8 tests --count --ignore=E222,E501,W503,F401,F841,F811 --show-source --statistics
-    - name: eslint
-      run: npm run lint
-    - name: Code formatting (prettier)
-      run: npm run format
+        npm ci --ignore-scripts
     - name: Build Component
       run: npm run build
     - name: Build Validation
