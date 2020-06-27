@@ -127,7 +127,7 @@ $ python usage.py
 Run linting + integration tests in one command: 
 
 ```bash 
-$npm run test
+$ npm run test
 ```
 
 Or run tests individually:
@@ -136,23 +136,28 @@ Or run tests individually:
 
 Uses `flake8` and `eslint`. Check `package.json`, `.eslintrc`, `.eslintignore` for configuration settings.
 ```bash
-$npm run lint
-$npm run lint:py
+$ npm run lint
+$ npm run lint:py
 ```
 
 Uses `prettier` for javascript formatting:
 ```bash
-$npm run format
+$ npm run format
 ```
 
 ### Integration
 
 Integration tests for the component can be found in `tests/`
 ```bash
-$pytest tests
+$ pytest
 ```
 
 Selenium test runner configuration options are located in `pytest.ini` (e.g. `--webdriver`, `--headless`). See `dash[testing]` documentation for more information on built-ins provided by the dash test fixture.
+
+Run individual integration tests based on the filename.
+```bash
+$ pytest tests/test_extend_maxpoints.py
+```
 
 ## Continuous Integration via Github Actions
 
