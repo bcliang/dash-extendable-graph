@@ -23,16 +23,15 @@ jobs:
       - name: Install dependencies
         run: |
         python -m pip install --upgrade pip
-        pip install flake8
-        npm ci --ignore-scripts
+        pip install flake8 pytest
+        npm install --ignore-scripts
       - name: Run prettier
         run: npm run format
       - name: Check pycodestyle (flake8)
         run: |
-        # fail on syntax errors 
-        flake8 dash_extendable_graph --count --select=E9,F63,F7,F82 --show-source --statistics
+        # check for syntax errors 
         flake8 tests --count --select=E9,F63,F7,F82 --show-source --statistics
-        # fail on formatting errors
+        # check for formatting errors
         flake8 tests --count --ignore=E222,E501,W503,F401,F841,F811 --show-source --statistics
       - name: Check javascript code style
         run: |
@@ -58,10 +57,14 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -r tests/requirements.txt
-        npm ci --ignore-scripts
+        npm install --ignore-scripts
     - name: Build Component
       run: npm run build
     - name: Build Validation
       run: python _validate_init.py
+    - name: Check generated code for syntax errors (flake8)
+      run: |
+      # fail on syntax errors 
+      flake8 dash_extendable_graph --count --select=E9,F63,F7,F82 --show-source --statistics
     - name: Run Integration Tests (pytest/dash[testing])
       run: pytest tests
