@@ -7,6 +7,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 -
 
+### Fixed
+- [#43](https://github.com/bcliang/dash-extendable-graph/pull/43) Fix for clientside callbacks
+
 ### Added
 - [#42](https://github.com/bcliang/dash-extendable-graph/pull/42) GitHub actions for CI
 - [#40](https://github.com/bcliang/dash-extendable-graph/pull/40) Add responsive property, update to latest plotly.js
