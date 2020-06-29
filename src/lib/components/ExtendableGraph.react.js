@@ -370,10 +370,11 @@ class ExtendableGraph extends Component {
                     refreshRate={50}
                     onResize={this.graphResize}
                 />
-                <div id={id}
+                <div
+                    id={id}
                     key={id}
-                    ref={this.gd} 
-                    style={{height: '100%', width: '100%'}} 
+                    ref={this.gd}
+                    style={{height: '100%', width: '100%'}}
                 />
             </div>
         );
