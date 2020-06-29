@@ -1,6 +1,5 @@
 const baseConfig = require('./webpack.config.js');
 const merge = require('webpack-merge');
-const path = require('path');
 const {WebpackPluginServe: Serve} = require('webpack-plugin-serve');
 
 const serve = new Serve({
