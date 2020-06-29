@@ -2,28 +2,38 @@
   "name": "dash_extendable_graph",
   "version": "1.2.0",
   "description": "A Dash Graph component modified to support use of figure.data-structured input to extend and/or add traces.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bcliang/dash-extendable-graph.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bcliang/dash-extendable-graph/issues"
+  },
   "homepage": "https://github.com/bcliang/dash-extendable-graph",
   "main": "build/index.js",
   "scripts": {
+    "clean": "rm -rf dist build man inst R",
     "start": "wp --config config/serve.config.js",
     "validate-init": "python _validate_init.py",
+    "lint": "run-s private:lint.*",
+    "private:lint.eslint": "eslint src tests",
+    "private:lint.prettier": "prettier --config .prettierrc src/**/*.js --list-different",
+    "private:lint.flake8": "flake8 --ignore E501,F401,W503 --exclude=dash_extendable_graph,node_modules,venv",
+    "format": "run-s private:format.*",
+    "private:format.eslint": "eslint src tests --fix",
+    "private:format.prettier": "prettier --config .prettierrc --write src/**/*.js src/**/**/*.js",
+    "test": "run-s -c test:py lint format lint:py",
+    "test:py": "pytest tests",
     "generator": "node generator/plotly.js",
-    "prepublishOnly": "npm run validate-init && npm run lint && npm run lint:py && npm run format && npm run build",
+    "prepublishOnly": "npm run validate-init && npm run lint && npm run format && npm run build",
     "build:js-dev": "wp --config config/webpack.config.js --mode development",
     "build:js": "npm run lint && wp --config config/webpack.config.js --mode production",
     "build:py": "dash-generate-components ./src/lib/components dash_extendable_graph",
+    "build:py_and_r": "dash-generate-components ./src/lib/components dash_extendable_graph -p package.json --r-prefix 'r'",
     "build": "npm run generator && npm run build:js && npm run build:js-dev && npm run build:py",
-    "lint": "eslint src",
-    "lint:py": "flake8 --ignore=E222,E501,W503,F401,F403,F841,F811 tests dash_extendable_graph",
-    "format": "prettier --config .prettierrc --write src/**/*.js src/**/**/*.js",
-    "test": "run-s -c test:py lint format lint:py",
-    "test:py": "pytest tests",
-    "build:watch": "watch \"npm run build\" src --wait 5"
+    "watch": "watch \"npm run build\" src --wait 5"
   },
-  "author": {
-    "name": "Brad Liang",
-    "email": "brad@bliang.com"
-  },
+  "author": "Brad Liang <brad@bliang.com>",
   "license": "MIT",
   "dependencies": {
     "plotly.js": "^1.54.5",
@@ -59,9 +69,5 @@
   "engines": {
     "node": ">=8.11.0",
     "npm": ">=6.1.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/bcliang/dash-extendable-graph.git"
   }
 }
