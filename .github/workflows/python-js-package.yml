@@ -21,14 +21,10 @@ jobs:
         python-version: 3.8
     - run: npm install
     - run: pip install flake8
-    - name: Checkstyle with prettier
+    - name: Format
       run: npm run format
-    - name: Lint with eslint
+    - name: Lint
       run: npm run lint
-    - name: Lint with flake8
-      run: flake8 tests --count --select=E9,F63,F7,F82 --show-source --statistics
-    - name: Check python format errors (flake8)
-      run: flake8 tests --count --ignore=E222,E501,W503,F401,F841,F811 --show-source --statistics
   build:
     runs-on: ubuntu-latest
     strategy:
@@ -50,10 +46,10 @@ jobs:
         pip install -r requirements.txt
         pip install -r tests/requirements.txt
         npm install --ignore-scripts
+    - name: Pre-Build Validation
+      run: python _validate_init.py
     - name: Build Component
       run: npm run build
-    - name: Build Validation
-      run: python _validate_init.py
     - name: Check generated code for syntax errors (flake8)
       run: flake8 dash_extendable_graph --count --select=E9,F63,F7,F82 --show-source --statistics
     - name: Run Integration Tests (pytest/dash[testing])
