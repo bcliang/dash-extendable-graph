@@ -33,7 +33,10 @@
     "build": "npm run generator && npm run build:js && npm run build:js-dev && npm run build:py",
     "watch": "watch \"npm run build\" src --wait 5"
   },
-  "author": "Brad Liang <brad@bliang.com>",
+  "author": {
+    "name": "Brad Liang",
+    "email": "brad@bliang.com"
+  },
   "license": "MIT",
   "dependencies": {
     "plotly.js": "^1.54.5",
