@@ -135,13 +135,12 @@ Or run tests individually:
 
 ### Code style
 
-Uses `flake8` and `eslint`. Check `package.json`, `.eslintrc`, `.eslintignore` for configuration settings.
+Uses `flake8`, `eslint`, and `prettier`. Check `package.json`, `.eslintrc`, `.eslintignore` for configuration settings.
 ```bash
 $ npm run lint
-$ npm run lint:py
 ```
 
-Uses `prettier` for javascript formatting:
+Also you can apply formatting settings.
 ```bash
 $ npm run format
 ```
@@ -162,7 +161,7 @@ $ pytest tests/test_extend_maxpoints.py
 
 ## Continuous Integration via Github Actions
 
-This repository uses github actions to automate testing. CI is triggered on each (1) push and (2) pull request into `master`
+This repository uses github actions to automate testing. CI is triggered for each pull request into the `master` branch
 
 ## Publishing
 
