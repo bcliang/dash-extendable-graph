@@ -8,6 +8,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 -
 
 ### Fixed
+- 
+
+### Added
+- 
+
+## [1.2.0] - 2020-06-30
+### Fixed
 - [#43](https://github.com/bcliang/dash-extendable-graph/pull/43) Fix for clientside callbacks
 
 ### Added

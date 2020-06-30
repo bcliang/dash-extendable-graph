@@ -4,6 +4,7 @@ node_modules/
 # misc
 .npm/
 .git/
+.github/
 .DS_Store
 .env.local
 .env.development.local
@@ -25,3 +26,6 @@ config
 .travis.yml
 CHANGELOG.md
 README.md
+tests
+generator
+*.dev.js

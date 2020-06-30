@@ -18,7 +18,7 @@
     "lint": "run-s private:lint.*",
     "private:lint.eslint": "eslint src tests",
     "private:lint.prettier": "prettier --config .prettierrc src/**/*.js --list-different",
-    "private:lint.flake8": "flake8 --ignore E501,F401,W503 --exclude=dash_extendable_graph,node_modules,venv",
+    "private:lint.flake8": "flake8 --ignore E501,F401,W503 --exclude=dash_extendable_graph,node_modules,venv --show-source --statistics",
     "format": "run-s private:format.*",
     "private:format.eslint": "eslint src tests --fix",
     "private:format.prettier": "prettier --config .prettierrc --write src/**/*.js src/**/**/*.js",
@@ -33,7 +33,10 @@
     "build": "npm run generator && npm run build:js && npm run build:js-dev && npm run build:py",
     "watch": "watch \"npm run build\" src --wait 5"
   },
-  "author": "Brad Liang <brad@bliang.com>",
+  "author": {
+    "name": "Brad Liang",
+    "email": "brad@bliang.com"
+  },
   "license": "MIT",
   "dependencies": {
     "plotly.js": "^1.54.5",
