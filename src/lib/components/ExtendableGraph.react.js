@@ -10,9 +10,12 @@ import graph from '../fragments/ExtendableGraph.react';
 const EMPTY_DATA = [];
 
 /**
- * ExtendableGraph Non-Graph Properties
+ * ExtendableGraph can be used to render any plotly.js-powered data vis.
+ *
+ * You can define callbacks based on user interaction with ExtendableGraphs such
+ * as hovering, clicking or selecting
  */
-class GraphWithCustomProps extends Component {
+class ExtendableGraph extends Component {
     constructor(props) {
         super(props);
 
@@ -136,7 +139,7 @@ const GraphContainer = memo((props) => {
     );
 });
 
-export const graphPropTypes = {
+ExtendableGraph.propTypes = {
     ...privatePropTypes,
 
     /**
@@ -530,8 +533,9 @@ export const graphPropTypes = {
         component_name: PropTypes.string,
     }),
 };
+GraphContainer.propTypes = ExtendableGraph.propTypes;
 
-export const graphDefaultProps = {
+ExtendableGraph.defaultProps = {
     ...privateDefaultProps,
     clickData: null,
     clickAnnotationData: null,
@@ -557,9 +561,7 @@ export const graphDefaultProps = {
     config: {},
 };
 
-GraphWithCustomProps.propTypes = graphPropTypes;
-GraphContainer.propTypes = graphPropTypes;
+export const graphPropTypes = ExtendableGraph.propTypes;
+export const graphDefaultProps = ExtendableGraph.defaultProps;
 
-GraphWithCustomProps.defaultProps = graphDefaultProps;
-
-export default GraphWithCustomProps;
+export default ExtendableGraph;
