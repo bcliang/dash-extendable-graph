@@ -12,7 +12,7 @@ class Controller extends Component {
     constructor() {
         super();
         this.timer = this.timer.bind(this);
-        this.state = {'x': 0};
+        this.state = {'x': 0, 'y': 1,};
     }
     timer() {
     	  this.setState({'x': (this.state.x + 1),

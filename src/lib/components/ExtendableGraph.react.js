@@ -1,11 +1,12 @@
-import React, {Component} from 'react';
+import React, {Component, Suspense, memo} from 'react';
 import PropTypes from 'prop-types';
+
 import {mergeDeepRight, isNil, type, omit, equals} from 'ramda';
 import ResizeDetector from 'react-resize-detector';
 import {
-    privatePropTypes,
-    privateDefaultProps,
-} from '../fragments/ExtendableGraph.privateprops';
+    graphPropTypes,
+    graphDefaultProps,
+} from '../fragments/ExtendableGraph.props';
 import {
     AUTO_LAYOUT,
     RESPONSIVE_LAYOUT,
@@ -17,17 +18,140 @@ import {
 import {filterEventData} from '../fragments/ExtendableGraph.events';
 /* global Plotly:true */
 
+const EMPTY_DATA = [];
+
+/**
+ * ExtendableGraph Non-Graph Properties
+ */
+class GraphWithCustomProps extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            prependData: [],
+            extendData: [],
+        };
+
+        this.clearState = this.clearState.bind(this);
+    }
+
+    componentDidMount() {
+        if (this.props.prependData) {
+            this.setState({
+                prependData: [this.props.prependData],
+            });
+        }
+        if (this.props.extendData) {
+            this.setState({
+                extendData: [this.props.extendData],
+            });
+        }
+    }
+
+    componentWillUnmount() {
+        this.setState({
+            prependData: [],
+            extendData: [],
+        });
+    }
+
+    UNSAFE_componentWillReceiveProps(nextProps) {
+        let prependData = this.state.prependData;
+        let extendData = this.state.extendData;
+
+        if (this.props.figure !== nextProps.figure) {
+            prependData = EMPTY_DATA;
+        }
+
+        if (
+            nextProps.prependData &&
+            this.props.prependData !== nextProps.prependData
+        ) {
+            prependData = nextProps.prependData;
+        } else {
+            prependData = EMPTY_DATA;
+        }
+
+        if (prependData !== EMPTY_DATA) {
+            this.setState({
+                prependData,
+            });
+        }
+
+        if (this.props.figure !== nextProps.figure) {
+            extendData = EMPTY_DATA;
+        }
+
+        if (
+            nextProps.extendData &&
+            this.props.extendData !== nextProps.extendData
+        ) {
+            extendData = nextProps.extendData;
+        } else {
+            extendData = EMPTY_DATA;
+        }
+
+        if (extendData !== EMPTY_DATA) {
+            this.setState({
+                extendData,
+            });
+        }
+    }
+
+    clearState(dataKey) {
+        this.setState((props) => {
+            var data = props[dataKey];
+            const res =
+                data && data.length
+                    ? {
+                          [dataKey]: EMPTY_DATA,
+                      }
+                    : undefined;
+            return res;
+        });
+    }
+
+    render() {
+        return (
+            <GraphContainer
+                {...this.props}
+                prependData={this.state.prependData}
+                extendData={this.state.extendData}
+                clearState={this.clearState}
+            />
+        );
+    }
+}
+
+const GraphContainer = memo((props) => {
+    const {className, id} = props;
+
+    const extendedClassName = className
+        ? 'dash-graph ' + className
+        : 'dash-graph';
+
+    return (
+        <Suspense
+            fallback={
+                <div
+                    id={id}
+                    key={id}
+                    className={`${extendedClassName} dash-graph--pending`}
+                />
+            }
+        >
+            <Graph {...props} className={extendedClassName} />
+        </Suspense>
+    );
+});
+
 /**
  * ExtendableGraph can be used to render any plotly.js-powered data vis.
- *
- * You can define callbacks based on user interaction with ExtendableGraphs such
- * as hovering, clicking or selecting
  */
-class ExtendableGraph extends Component {
+class Graph extends Component {
     constructor(props) {
         super(props);
         this.gd = React.createRef();
-        this.bindEvents = this.bindEvents.bind(this);
         this._hasPlotted = false;
         this._prevGd = null;
 
@@ -38,6 +162,8 @@ class ExtendableGraph extends Component {
         this.getLayoutOverride = this.getLayoutOverride.bind(this);
         this.graphResize = this.graphResize.bind(this);
         this.isResponsive = this.isResponsive.bind(this);
+
+        this.state = {override: {}, originals: {}};
     }
 
     plot(props) {
@@ -94,70 +220,72 @@ class ExtendableGraph extends Component {
         });
     }
 
-    extend(props) {
-        const {extendData} = props;
+    mergeTraces(props, dataKey, plotlyFnKey) {
+        const data = props[dataKey];
         const gd = this.gd.current;
+
         let updateData, traceIndices, maxPoints;
 
-        if (extendData) {
-            if (gd.data.length < 1) {
-                // figure has no pre-existing data. redirect to plot()
-                props.figure.data = extendData;
-                return this.plot(props);
+        if (gd.data.length < 1) {
+            // figure has no pre-existing data. redirect to plot()
+            props.figure.data = data[0];
+            props.clearState(dataKey);
+            this.plot(props);
+            return;
+        }
+
+        if (Array.isArray(data) && Array.isArray(data[0])) {
+            [updateData, traceIndices, maxPoints] = data;
+        } else {
+            updateData = data;
+        }
+
+        // if no traceIndices specified, generate them based on the length of the input data
+        if (!traceIndices) {
+            traceIndices = Array.from(Array(updateData.length).keys());
+        }
+
+        function createDataObject(data) {
+            const dataprops = Object.keys(data);
+            const ret = {};
+            for (let i = 0; i < dataprops.length; i++) {
+                ret[dataprops[i]] = [data[dataprops[i]]];
             }
+            return ret;
+        }
 
-            if (Array.isArray(extendData) && Array.isArray(extendData[0])) {
-                [updateData, traceIndices, maxPoints] = extendData;
-            } else {
-                updateData = extendData;
-            }
-
-            if (!traceIndices) {
-                traceIndices = Array.from(Array(updateData.length).keys());
-            }
-
-            function createDataObject(data) {
-                const dataprops = Object.keys(data);
-                const ret = {};
-                for (let i = 0; i < dataprops.length; i++) {
-                    ret[dataprops[i]] = [data[dataprops[i]]];
-                }
-                return ret;
-            }
-
-            gd.classList.add('dash-graph--pending');
-
-            for (const [i, value] of updateData.entries()) {
-                const updateObject = createDataObject(value);
-                if (i < updateData.length - 1) {
-                    if (traceIndices[i] < gd.data.length) {
-                        Plotly.extendTraces(
-                            gd,
-                            updateObject,
-                            [traceIndices[i]],
-                            maxPoints
-                        );
-                    } else {
-                        Plotly.addTraces(gd, value);
-                    }
+        for (const [i, value] of updateData.entries()) {
+            // extend/add each trace within updateData
+            const updateObject = createDataObject(value);
+            if (i < updateData.length - 1) {
+                if (traceIndices[i] < gd.data.length) {
+                    Plotly[plotlyFnKey](
+                        gd,
+                        updateObject,
+                        [traceIndices[i]],
+                        maxPoints
+                    );
                 } else {
-                    if (traceIndices[i] < gd.data.length) {
-                        return Plotly.extendTraces(
-                            gd,
-                            updateObject,
-                            [traceIndices[i]],
-                            maxPoints
-                        ).then(() => {
-                            const gd = this.gd.current;
+                    Plotly.addTraces(gd, value);
+                }
+            } else {
+                if (traceIndices[i] < gd.data.length) {
+                    Plotly[plotlyFnKey](
+                        gd,
+                        updateObject,
+                        [traceIndices[i]],
+                        maxPoints
+                    ).then(() => {
+                        const gd = this.gd.current;
 
-                            // double-check gd hasn't been unmounted
-                            if (!gd) {
-                                return;
-                            }
-                            gd.classList.remove('dash-graph--pending');
-                        });
-                    }
-                    return Plotly.addTraces(gd, value).then(() => {
+                        // double-check gd hasn't been unmounted
+                        if (!gd) {
+                            return;
+                        }
+                        gd.classList.remove('dash-graph--pending');
+                    });
+                } else {
+                    Plotly.addTraces(gd, value).then(() => {
                         const gd = this.gd.current;
 
                         // double-check gd hasn't been unmounted
@@ -169,8 +297,8 @@ class ExtendableGraph extends Component {
                 }
             }
         }
-
-        return this.plot(props);
+        props.clearState(dataKey);
+        return;
     }
 
     getConfig(config, responsive) {
@@ -181,8 +309,31 @@ class ExtendableGraph extends Component {
         if (!layout) {
             return layout;
         }
-
-        return mergeDeepRight(layout, this.getLayoutOverride(responsive));
+        const override = this.getLayoutOverride(responsive);
+        const {override: prev_override, originals: prev_originals} = this.state;
+        // Store the original data that we're about to override
+        const originals = {};
+        for (const key in override) {
+            if (layout[key] !== prev_override[key]) {
+                originals[key] = layout[key];
+            } else if (
+                Object.prototype.hasOwnProperty.call(prev_originals, key)
+            ) {
+                originals[key] = prev_originals[key];
+            }
+        }
+        this.setState({override, originals});
+        // Undo the previous override, but only for keys that the user did not change
+        for (const key in prev_originals) {
+            if (layout[key] === prev_override[key]) {
+                layout[key] = prev_originals[key];
+            }
+        }
+        // Apply the current override
+        for (const key in override) {
+            layout[key] = override[key];
+        }
+        return layout; // not really a clone
     }
 
     getConfigOverride(responsive) {
@@ -301,6 +452,15 @@ class ExtendableGraph extends Component {
 
     componentDidMount() {
         this.plot(this.props);
+        if (this.props.prependData) {
+            this.mergeTraces(this.props, 'prependData', 'prependTraces');
+        }
+        if (this.props.extendData) {
+            this.mergeTraces(this.props, 'extendData', 'extendTraces');
+        }
+        if (this.props.prependData?.length || this.props.extendData?.length) {
+            this.props._dashprivate_onFigureModified(this.props.figure);
+        }
     }
 
     componentWillUnmount() {
@@ -316,7 +476,10 @@ class ExtendableGraph extends Component {
     shouldComponentUpdate(nextProps) {
         return (
             this.props.id !== nextProps.id ||
-            JSON.stringify(this.props.style) !== JSON.stringify(nextProps.style)
+            JSON.stringify(this.props.style) !==
+                JSON.stringify(nextProps.style) ||
+            JSON.stringify(this.props.loading_state) !==
+                JSON.stringify(nextProps.loading_state)
         );
     }
 
@@ -329,7 +492,6 @@ class ExtendableGraph extends Component {
              */
             return;
         }
-
         if (
             this.props.figure !== nextProps.figure ||
             this.props._dashprivate_transformConfig !==
@@ -340,8 +502,16 @@ class ExtendableGraph extends Component {
             this.plot(nextProps);
         }
 
+        if (this.props.prependData !== nextProps.prependData) {
+            this.mergeTraces(nextProps, 'prependData', 'prependTraces');
+        }
+
         if (this.props.extendData !== nextProps.extendData) {
-            this.extend(nextProps);
+            this.mergeTraces(nextProps, 'extendData', 'extendTraces');
+        }
+
+        if (this.props.prependData?.length || this.props.extendData?.length) {
+            this.props._dashprivate_onFigureModified(this.props.figure);
         }
     }
 
@@ -380,416 +550,27 @@ class ExtendableGraph extends Component {
         );
     }
 }
-
-const graphPropTypes = {
-    ...privatePropTypes,
-
-    /**
-     * The ID of this component, used to identify dash components
-     * in callbacks. The ID needs to be unique across all of the
-     * components in an app.
-     */
-    id: PropTypes.string,
-
-    /**
-     * If True, the Plotly.js plot will be fully responsive to window resize
-     * and parent element resize event. This is achieved by overriding
-     * `config.responsive` to True, `figure.layout.autosize` to True and unsetting
-     * `figure.layout.height` and `figure.layout.width`.
-     * If False, the Plotly.js plot not be responsive to window resize and
-     * parent element resize event. This is achieved by overriding `config.responsive`
-     * to False and `figure.layout.autosize` to False.
-     * If 'auto' (default), the Graph will determine if the Plotly.js plot can be made fully
-     * responsive (True) or not (False) based on the values in `config.responsive`,
-     * `figure.layout.autosize`, `figure.layout.height`, `figure.layout.width`.
-     * This is the legacy behavior of the ExtendableGraph component.
-     *
-     * Needs to be combined with appropriate dimension / styling through the `style` prop
-     * to fully take effect.
-     */
-    responsive: PropTypes.oneOf([true, false, 'auto']),
-
-    /**
-     * Data from latest click event. Read-only.
-     */
-    clickData: PropTypes.object,
-
-    /**
-     * Data from latest click annotation event. Read-only.
-     */
-    clickAnnotationData: PropTypes.object,
-
-    /**
-     * Data from latest hover event. Read-only.
-     */
-    hoverData: PropTypes.object,
-
-    /**
-     * If True, `clear_on_unhover` will clear the `hoverData` property
-     * when the user "unhovers" from a point.
-     * If False, then the `hoverData` property will be equal to the
-     * data from the last point that was hovered over.
-     */
-    clear_on_unhover: PropTypes.bool,
-
-    /**
-     * Data from latest select event. Read-only.
-     */
-    selectedData: PropTypes.object,
-
-    /**
-     * Data from latest relayout event which occurs
-     * when the user zooms or pans on the plot or other
-     * layout-level edits. Has the form `{<attr string>: <value>}`
-     * describing the changes made. Read-only.
-     */
-    relayoutData: PropTypes.object,
-
-    /**
-     * Data that should be appended to existing traces. Has the form
-     * `[updateData, traceIndices, maxPoints]`, where `updateData` is an array
-     * containing data objects to extend, `traceIndices` (optional) is an array
-     * of trace indices that should be extended, and `maxPoints` (optional) is
-     * either an integer defining the maximum number of points allowed or an
-     * object with key:value pairs matching `updateData`
-     * Reference the Plotly.extendTraces API for full usage:
-     * https://plot.ly/javascript/plotlyjs-function-reference/#plotlyextendtraces
-     */
-    extendData: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
-
-    /**
-     * Data from latest restyle event which occurs
-     * when the user toggles a legend item, changes
-     * parcoords selections, or other trace-level edits.
-     * Has the form `[edits, indices]`, where `edits` is an object
-     * `{<attr string>: <value>}` describing the changes made,
-     * and `indices` is an array of trace indices that were edited.
-     * Read-only.
-     */
-    restyleData: PropTypes.array,
-
-    /**
-     * Plotly `figure` object. See schema:
-     * https://plot.ly/javascript/reference
-     *
-     * `config` is set separately by the `config` property
-     */
-    figure: PropTypes.exact({
-        data: PropTypes.arrayOf(PropTypes.object),
-        layout: PropTypes.object,
-        frames: PropTypes.arrayOf(PropTypes.object),
-    }),
-
-    /**
-     * Generic style overrides on the plot div
-     */
-    style: PropTypes.object,
-
-    /**
-     * className of the parent div
-     */
-    className: PropTypes.string,
-
-    /**
-     * Beta: If true, animate between updates using
-     * plotly.js's `animate` function
-     */
-    animate: PropTypes.bool,
-
-    /**
-     * Beta: Object containing animation settings.
-     * Only applies if `animate` is `true`
-     */
-    animation_options: PropTypes.object,
-
-    /**
-     * Plotly.js config options.
-     * See https://plot.ly/javascript/configuration-options/
-     * for more info.
-     */
-    config: PropTypes.exact({
-        /**
-         * No interactivity, for export or image generation
-         */
-        staticPlot: PropTypes.bool,
-
-        /**
-         * Base URL for a Plotly cloud instance, if `showSendToCloud` is enabled
-         */
-        plotlyServerURL: PropTypes.string,
-
-        /**
-         * We can edit titles, move annotations, etc - sets all pieces of `edits`
-         * unless a separate `edits` config item overrides individual parts
-         */
-        editable: PropTypes.bool,
-
-        /**
-         * A set of editable properties
-         */
-        edits: PropTypes.exact({
-            /**
-             * The main anchor of the annotation, which is the
-             * text (if no arrow) or the arrow (which drags the whole thing leaving
-             * the arrow length & direction unchanged)
-             */
-            annotationPosition: PropTypes.bool,
-
-            /**
-             * Just for annotations with arrows, change the length and direction of the arrow
-             */
-            annotationTail: PropTypes.bool,
-
-            annotationText: PropTypes.bool,
-
-            axisTitleText: PropTypes.bool,
-
-            colorbarPosition: PropTypes.bool,
-
-            colorbarTitleText: PropTypes.bool,
-
-            legendPosition: PropTypes.bool,
-
-            /**
-             * Edit the trace name fields from the legend
-             */
-            legendText: PropTypes.bool,
-
-            shapePosition: PropTypes.bool,
-
-            /**
-             * The global `layout.title`
-             */
-            titleText: PropTypes.bool,
-        }),
-
-        /**
-         * DO autosize once regardless of layout.autosize
-         * (use default width or height values otherwise)
-         */
-        autosizable: PropTypes.bool,
-
-        /**
-         * Whether to change layout size when the window size changes
-         */
-        responsive: PropTypes.bool,
-
-        /**
-         * Set the length of the undo/redo queue
-         */
-        queueLength: PropTypes.number,
-
-        /**
-         * If we DO autosize, do we fill the container or the screen?
-         */
-        fillFrame: PropTypes.bool,
-
-        /**
-         * If we DO autosize, set the frame margins in percents of plot size
-         */
-        frameMargins: PropTypes.number,
-
-        /**
-         * Mousewheel or two-finger scroll zooms the plot
-         */
-        scrollZoom: PropTypes.bool,
-
-        /**
-         * Double click interaction (false, 'reset', 'autosize' or 'reset+autosize')
-         */
-        doubleClick: PropTypes.oneOf([
-            false,
-            'reset',
-            'autosize',
-            'reset+autosize',
-        ]),
-
-        /**
-         * New users see some hints about interactivity
-         */
-        showTips: PropTypes.bool,
-
-        /**
-         * Enable axis pan/zoom drag handles
-         */
-        showAxisDragHandles: PropTypes.bool,
-
-        /**
-         * Enable direct range entry at the pan/zoom drag points
-         * (drag handles must be enabled above)
-         */
-        showAxisRangeEntryBoxes: PropTypes.bool,
-
-        /**
-         * Link to open this plot in plotly
-         */
-        showLink: PropTypes.bool,
-
-        /**
-         * If we show a link, does it contain data or just link to a plotly file?
-         */
-        sendData: PropTypes.bool,
-
-        /**
-         * Text appearing in the sendData link
-         */
-        linkText: PropTypes.string,
-
-        /**
-         * Display the mode bar (true, false, or 'hover')
-         */
-        displayModeBar: PropTypes.oneOf([true, false, 'hover']),
-
-        /**
-         * Should we include a modebar button to send this data to a
-         * Plotly Cloud instance, linked by `plotlyServerURL`.
-         * By default this is false.
-         */
-        showSendToCloud: PropTypes.bool,
-
-        /**
-         * Remove mode bar button by name.
-         * All modebar button names at https://github.com/plotly/plotly.js/blob/master/src/components/modebar/buttons.js
-         * Common names include:
-         * sendDataToCloud;
-         * (2D) zoom2d, pan2d, select2d, lasso2d, zoomIn2d, zoomOut2d, autoScale2d, resetScale2d;
-         * (Cartesian) hoverClosestCartesian, hoverCompareCartesian;
-         * (3D) zoom3d, pan3d, orbitRotation, tableRotation, handleDrag3d, resetCameraDefault3d, resetCameraLastSave3d, hoverClosest3d;
-         * (Geo) zoomInGeo, zoomOutGeo, resetGeo, hoverClosestGeo;
-         * hoverClosestGl2d, hoverClosestPie, toggleHover, resetViews.
-         */
-        modeBarButtonsToRemove: PropTypes.array,
-
-        /**
-         * Add mode bar button using config objects
-         */
-        modeBarButtonsToAdd: PropTypes.array,
-
-        /**
-         * Fully custom mode bar buttons as nested array,
-         * where the outer arrays represents button groups, and
-         * the inner arrays have buttons config objects or names of default buttons
-         */
-        modeBarButtons: PropTypes.any,
-
-        /**
-         * Modifications to how the toImage modebar button works
-         */
-        toImageButtonOptions: PropTypes.exact({
-            /**
-             * The file format to create
-             */
-            format: PropTypes.oneOf(['jpeg', 'png', 'webp', 'svg']),
-            /**
-             * The name given to the downloaded file
-             */
-            filename: PropTypes.string,
-            /**
-             * Width of the downloaded file, in px
-             */
-            width: PropTypes.number,
-            /**
-             * Height of the downloaded file, in px
-             */
-            height: PropTypes.number,
-            /**
-             * Extra resolution to give the file after
-             * rendering it with the given width and height
-             */
-            scale: PropTypes.number,
-        }),
-
-        /**
-         * Add the plotly logo on the end of the mode bar
-         */
-        displaylogo: PropTypes.bool,
-
-        /**
-         * Add the plotly logo even with no modebar
-         */
-        watermark: PropTypes.bool,
-
-        /**
-         * Increase the pixel ratio for Gl plot images
-         */
-        plotGlPixelRatio: PropTypes.number,
-
-        /**
-         * URL to topojson files used in geo charts
-         */
-        topojsonURL: PropTypes.string,
-
-        /**
-         * Mapbox access token (required to plot mapbox trace types)
-         * If using an Mapbox Atlas server, set this option to '',
-         * so that plotly.js won't attempt to authenticate to the public Mapbox server.
-         */
-        mapboxAccessToken: PropTypes.any,
-
-        /**
-         * The locale to use. Locales may be provided with the plot
-         * (`locales` below) or by loading them on the page, see:
-         * https://github.com/plotly/plotly.js/blob/master/dist/README.md#to-include-localization
-         */
-        locale: PropTypes.string,
-
-        /**
-         * Localization definitions, if you choose to provide them with the
-         * plot rather than registering them globally.
-         */
-        locales: PropTypes.object,
-    }),
-
-    /**
-     * Function that updates the state tree.
-     */
-    setProps: PropTypes.func,
-
-    /**
-     * Object that holds the loading state object coming from dash-renderer
-     */
-    loading_state: PropTypes.shape({
-        /**
-         * Determines if the component is loading or not
-         */
-        is_loading: PropTypes.bool,
-        /**
-         * Holds which property is loading
-         */
-        prop_name: PropTypes.string,
-        /**
-         * Holds the name of the component that is loading
-         */
-        component_name: PropTypes.string,
-    }),
+Graph.propTypes = {
+    ...graphPropTypes,
+    prependData: PropTypes.arrayOf(
+        PropTypes.oneOfType([PropTypes.array, PropTypes.object])
+    ),
+    extendData: PropTypes.arrayOf(
+        PropTypes.oneOfType([PropTypes.array, PropTypes.object])
+    ),
+    clearState: PropTypes.func.isRequired,
+};
+Graph.defaultProps = {
+    ...graphDefaultProps,
+    prependData: [],
+    extendData: [],
 };
 
-const graphDefaultProps = {
-    ...privateDefaultProps,
-    clickData: null,
-    clickAnnotationData: null,
-    hoverData: null,
-    selectedData: null,
-    relayoutData: null,
-    extendData: null,
-    restyleData: null,
-    figure: {data: [], layout: {}, frames: []},
-    responsive: 'auto',
-    animate: false,
-    animation_options: {
-        frame: {
-            redraw: false,
-        },
-        transition: {
-            duration: 750,
-            ease: 'cubic-in-out',
-        },
-    },
-    clear_on_unhover: false,
-    config: {},
-};
+GraphWithCustomProps.propTypes = graphPropTypes;
+GraphContainer.propTypes = graphPropTypes;
 
-ExtendableGraph.propTypes = graphPropTypes;
-ExtendableGraph.defaultProps = graphDefaultProps;
+GraphWithCustomProps.defaultProps = graphDefaultProps;
 
-export default ExtendableGraph;
+
+
+export default GraphWithCustomProps;
