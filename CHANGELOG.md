@@ -5,10 +5,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 ### Changed
--
+- [#51](https://github.com/bcliang/dash-extendable-graph/pull/51) Update project dependencies
 
 ### Fixed
-- 
+- [#47](https://github.com/bcliang/dash-extendable-graph/pull/47) Bump elliptic from 6.5.3 to 6.5.4
+- [#49](https://github.com/bcliang/dash-extendable-graph/pull/49) Bump y18n from 4.0.0 to 4.0.1
 
 ### Added
 - 
