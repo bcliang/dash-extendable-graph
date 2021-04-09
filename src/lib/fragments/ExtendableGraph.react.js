@@ -100,18 +100,22 @@ class Graph extends Component {
 
         let updateData, traceIndices, maxPoints;
 
-        if (gd.data.length < 1) {
-            // figure has no pre-existing data. redirect to plot()
-            props.figure.data = data[0];
-            props.clearState(dataKey);
-            this.plot(props);
-            return;
-        }
-
         if (Array.isArray(data) && Array.isArray(data[0])) {
             [updateData, traceIndices, maxPoints] = data;
         } else {
             updateData = data;
+        }
+
+        if (updateData.length === 0) { 
+            return;
+        }
+
+        if (gd.data.length < 1) {
+            // figure has no pre-existing data. redirect to plot()
+            props.figure.data = updateData;
+            props.clearState(dataKey);
+            this.plot(props);
+            return;
         }
 
         // if no traceIndices specified, generate them based on the length of the input data

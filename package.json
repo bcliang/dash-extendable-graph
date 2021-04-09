@@ -1,6 +1,6 @@
 {
   "name": "dash_extendable_graph",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "A Dash Graph component modified to support use of figure.data-structured input to extend and/or add traces.",
   "repository": {
     "type": "git",
@@ -18,7 +18,7 @@
     "lint": "run-s private:lint.*",
     "private:lint.eslint": "eslint src tests --fix",
     "private:lint.prettier": "prettier --config .prettierrc --write src/**/*.js --list-different",
-    "private:lint.flake8": "flake8 --ignore E501,F401,W503 --exclude=dash_extendable_graph,node_modules,venv --show-source --statistics",
+    "private:lint.flake8": "flake8 --ignore E231,E501,F401,W503 --exclude=dash_extendable_graph,node_modules,venv --show-source --statistics",
     "format": "run-s private:format.*",
     "private:format.eslint": "eslint src tests --fix",
     "private:format.prettier": "prettier --config .prettierrc --write src/**/*.js src/**/**/*.js",
