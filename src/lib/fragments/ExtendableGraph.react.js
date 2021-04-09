@@ -106,7 +106,7 @@ class Graph extends Component {
             updateData = data;
         }
 
-        if (updateData.length === 0) { 
+        if (updateData.length === 0) {
             return;
         }
 
