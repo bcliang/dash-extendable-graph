@@ -21,7 +21,11 @@ def test_extg007_clientside(dash_duo):
                 figure=dict(
                     layout=dict(title=initial_graph_title),
                     data=[
-                        dict(x=[1, 2, 3, 4], y=[5, 4, 3, 6], line=dict(shape="spline"),)
+                        dict(
+                            x=[1, 2, 3, 4],
+                            y=[5, 4, 3, 6],
+                            line=dict(shape="spline"),
+                        )
                     ],
                 ),
             )

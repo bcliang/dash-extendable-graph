@@ -20,7 +20,9 @@ def test_extg001_render_component(dash_duo):
             deg.ExtendableGraph(
                 id="trace_will_extend",
                 config={"displaylogo": False},
-                figure=dict(data=[{"x": [0, 1, 2, 3, 4], "y": [0, 0.5, 1, 0.5, 0]}],),
+                figure=dict(
+                    data=[{"x": [0, 1, 2, 3, 4], "y": [0, 0.5, 1, 0.5, 0]}],
+                ),
             ),
             html.Div(id="output"),
             dcc.Interval(

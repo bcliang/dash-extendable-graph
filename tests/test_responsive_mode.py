@@ -102,7 +102,11 @@ def test_extg006_responsive(dash_duo, responsive, autosize, height, is_responsiv
                 figure=dict(
                     layout=dict(autosize=autosize, height=height, width=width),
                     data=[
-                        dict(x=[1, 2, 3, 4], y=[5, 4, 3, 6], line=dict(shape="spline"),)
+                        dict(
+                            x=[1, 2, 3, 4],
+                            y=[5, 4, 3, 6],
+                            line=dict(shape="spline"),
+                        )
                     ],
                 ),
             )
