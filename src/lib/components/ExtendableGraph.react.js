@@ -554,7 +554,7 @@ ExtendableGraph.defaultProps = {
         },
         transition: {
             duration: 750,
-            ease: 'cubic-in-out',
+            easing: 'cubic-in-out',
         },
     },
     clear_on_unhover: false,
