@@ -4,114 +4,15 @@
     "displayName": "ExtendableGraph",
     "methods": [
       {
-        "name": "plot",
+        "name": "clearState",
         "docblock": null,
         "modifiers": [],
         "params": [
           {
-            "name": "props",
+            "name": "dataKey",
             "type": null
           }
         ],
-        "returns": null
-      },
-      {
-        "name": "extend",
-        "docblock": null,
-        "modifiers": [],
-        "params": [
-          {
-            "name": "props",
-            "type": null
-          }
-        ],
-        "returns": null
-      },
-      {
-        "name": "getConfig",
-        "docblock": null,
-        "modifiers": [],
-        "params": [
-          {
-            "name": "config",
-            "type": null
-          },
-          {
-            "name": "responsive",
-            "type": null
-          }
-        ],
-        "returns": null
-      },
-      {
-        "name": "getLayout",
-        "docblock": null,
-        "modifiers": [],
-        "params": [
-          {
-            "name": "layout",
-            "type": null
-          },
-          {
-            "name": "responsive",
-            "type": null
-          }
-        ],
-        "returns": null
-      },
-      {
-        "name": "getConfigOverride",
-        "docblock": null,
-        "modifiers": [],
-        "params": [
-          {
-            "name": "responsive",
-            "type": null
-          }
-        ],
-        "returns": null
-      },
-      {
-        "name": "getLayoutOverride",
-        "docblock": null,
-        "modifiers": [],
-        "params": [
-          {
-            "name": "responsive",
-            "type": null
-          }
-        ],
-        "returns": null
-      },
-      {
-        "name": "isResponsive",
-        "docblock": null,
-        "modifiers": [],
-        "params": [
-          {
-            "name": "props",
-            "type": null
-          }
-        ],
-        "returns": null
-      },
-      {
-        "name": "graphResize",
-        "docblock": null,
-        "modifiers": [],
-        "params": [
-          {
-            "name": "force",
-            "type": null
-          }
-        ],
-        "returns": null
-      },
-      {
-        "name": "bindEvents",
-        "docblock": null,
-        "modifiers": [],
-        "params": [],
         "returns": null
       }
     ],
@@ -233,6 +134,25 @@
           "computed": false
         }
       },
+      "prependData": {
+        "type": {
+          "name": "union",
+          "value": [
+            {
+              "name": "array"
+            },
+            {
+              "name": "object"
+            }
+          ]
+        },
+        "required": false,
+        "description": "Data that should be prepended to existing traces. Has the form\n`[updateData, traceIndices, maxPoints]`, where `updateData` is an array\ncontaining data objects to prepend, `traceIndices` (optional) is an array\nof trace indices that should be extended, and `maxPoints` (optional) is\neither an integer defining the maximum number of points allowed or an\nobject with key:value pairs matching `updateData`\nReference the Plotly.prependTraces API for full usage:\nhttps://plot.ly/javascript/plotlyjs-function-reference/#plotlyprependtraces",
+        "defaultValue": {
+          "value": "null",
+          "computed": false
+        }
+      },
       "restyleData": {
         "type": {
           "name": "array"
@@ -307,7 +227,7 @@
         "required": false,
         "description": "Beta: Object containing animation settings.\nOnly applies if `animate` is `true`",
         "defaultValue": {
-          "value": "{\n    frame: {\n        redraw: false,\n    },\n    transition: {\n        duration: 750,\n        ease: 'cubic-in-out',\n    },\n}",
+          "value": "{\n    frame: {\n        redraw: false,\n    },\n    transition: {\n        duration: 750,\n        easing: 'cubic-in-out',\n    },\n}",
           "computed": false
         }
       },
@@ -630,7 +550,7 @@
       }
     },
     "composes": [
-      "../fragments/ExtendableGraph.privateprops"
+      "../fragments/ExtendableGraph.props"
     ]
   }
 }

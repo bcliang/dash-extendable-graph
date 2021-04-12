@@ -48,6 +48,11 @@ export const filterEventData = (gd, eventData, event) => {
                 pointData.pointNumbers = fullPoint.pointNumbers;
             }
 
+            // for plotly_click events, let's add the button information to the point
+            if (has('button', eventData.event)) {
+                pointData.button = eventData.event.button;
+            }
+
             points[i] = pointData;
         }
         filteredEventData = {points};

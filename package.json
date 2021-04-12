@@ -40,21 +40,21 @@
   "license": "MIT",
   "dependencies": {
     "plotly.js": "^1.58.4",
-    "ramda": "^0.26.1"
+    "ramda": "^0.26.1",
   },
   "devDependencies": {
-    "@babel/core": "^7.10.3",
-    "@babel/plugin-proposal-object-rest-spread": "^7.10.3",
-    "@babel/preset-env": "^7.10.3",
-    "@babel/preset-react": "^7.10.1",
+    "@babel/core": "^7.11.1",
+    "@babel/plugin-proposal-object-rest-spread": "^7.11.0",
+    "@babel/preset-env": "^7.11.0",
+    "@babel/preset-react": "^7.10.4",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.1.0",
     "component-playground": "^3.2.1",
     "css-loader": "^3.6.0",
-    "eslint": "^7.3.1",
+    "eslint": "^7.6.0",
     "eslint-config-prettier": "^6.11.0",
-    "eslint-plugin-import": "^2.21.2",
-    "eslint-plugin-react": "^7.20.0",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-react": "^7.20.6",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.0.5",
     "prop-types": "^15.7.2",
@@ -70,7 +70,7 @@
     "webpack-plugin-serve": "^1.0.1"
   },
   "engines": {
-    "node": ">=8.11.0",
-    "npm": ">=6.1.0"
+    "node": ">=10.13.0",
+    "npm": ">=6.14.8"
   }
 }
