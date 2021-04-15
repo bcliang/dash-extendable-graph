@@ -1,21 +1,13 @@
-import React, {Component} from 'react';
+import React, {Component, Suspense, memo} from 'react';
 import PropTypes from 'prop-types';
-import {mergeDeepRight, isNil, type, omit, equals} from 'ramda';
-import ResizeDetector from 'react-resize-detector';
+
 import {
     privatePropTypes,
     privateDefaultProps,
-} from '../fragments/ExtendableGraph.privateprops';
-import {
-    AUTO_LAYOUT,
-    RESPONSIVE_LAYOUT,
-    UNRESPONSIVE_LAYOUT,
-    AUTO_CONFIG,
-    RESPONSIVE_CONFIG,
-    UNRESPONSIVE_CONFIG,
-} from '../fragments/ExtendableGraph.responsiveprops';
-import {filterEventData} from '../fragments/ExtendableGraph.events';
-/* global Plotly:true */
+} from '../fragments/ExtendableGraph.props';
+import graph from '../fragments/ExtendableGraph.react';
+
+const EMPTY_DATA = [];
 
 /**
  * ExtendableGraph can be used to render any plotly.js-powered data vis.
@@ -26,362 +18,128 @@ import {filterEventData} from '../fragments/ExtendableGraph.events';
 class ExtendableGraph extends Component {
     constructor(props) {
         super(props);
-        this.gd = React.createRef();
-        this.bindEvents = this.bindEvents.bind(this);
-        this._hasPlotted = false;
-        this._prevGd = null;
 
-        this.bindEvents = this.bindEvents.bind(this);
-        this.getConfig = this.getConfig.bind(this);
-        this.getConfigOverride = this.getConfigOverride.bind(this);
-        this.getLayout = this.getLayout.bind(this);
-        this.getLayoutOverride = this.getLayoutOverride.bind(this);
-        this.graphResize = this.graphResize.bind(this);
-        this.isResponsive = this.isResponsive.bind(this);
-    }
+        this.state = {
+            prependData: EMPTY_DATA,
+            extendData: EMPTY_DATA,
+        };
 
-    plot(props) {
-        let {figure, config} = props;
-        const {animate, animation_options, responsive} = props;
-        const gd = this.gd.current;
-
-        figure = props._dashprivate_transformFigure(figure, gd);
-        config = props._dashprivate_transformConfig(config, gd);
-
-        if (
-            animate &&
-            this._hasPlotted &&
-            figure.data.length === gd.data.length
-        ) {
-            return Plotly.animate(gd, figure, animation_options);
-        }
-
-        const configClone = this.getConfig(config, responsive);
-        const layoutClone = this.getLayout(figure.layout, responsive);
-
-        gd.classList.add('dash-graph--pending');
-
-        return Plotly.react(gd, {
-            data: figure.data,
-            layout: layoutClone,
-            frames: figure.frames,
-            config: configClone,
-        }).then(() => {
-            const gd = this.gd.current;
-
-            // double-check gd hasn't been unmounted
-            if (!gd) {
-                return;
-            }
-
-            gd.classList.remove('dash-graph--pending');
-
-            // in case we've made a new DOM element, transfer events
-            if (this._hasPlotted && gd !== this._prevGd) {
-                if (this._prevGd && this._prevGd.removeAllListeners) {
-                    this._prevGd.removeAllListeners();
-                    Plotly.purge(this._prevGd);
-                }
-                this._hasPlotted = false;
-            }
-
-            if (!this._hasPlotted) {
-                this.bindEvents();
-                this.graphResize(true);
-                this._hasPlotted = true;
-                this._prevGd = gd;
-            }
-        });
-    }
-
-    extend(props) {
-        const {extendData} = props;
-        const gd = this.gd.current;
-        let updateData, traceIndices, maxPoints;
-
-        if (extendData) {
-            if (gd.data.length < 1) {
-                // figure has no pre-existing data. redirect to plot()
-                props.figure.data = extendData;
-                return this.plot(props);
-            }
-
-            if (Array.isArray(extendData) && Array.isArray(extendData[0])) {
-                [updateData, traceIndices, maxPoints] = extendData;
-            } else {
-                updateData = extendData;
-            }
-
-            if (!traceIndices) {
-                traceIndices = Array.from(Array(updateData.length).keys());
-            }
-
-            function createDataObject(data) {
-                const dataprops = Object.keys(data);
-                const ret = {};
-                for (let i = 0; i < dataprops.length; i++) {
-                    ret[dataprops[i]] = [data[dataprops[i]]];
-                }
-                return ret;
-            }
-
-            gd.classList.add('dash-graph--pending');
-
-            for (const [i, value] of updateData.entries()) {
-                const updateObject = createDataObject(value);
-                if (i < updateData.length - 1) {
-                    if (traceIndices[i] < gd.data.length) {
-                        Plotly.extendTraces(
-                            gd,
-                            updateObject,
-                            [traceIndices[i]],
-                            maxPoints
-                        );
-                    } else {
-                        Plotly.addTraces(gd, value);
-                    }
-                } else {
-                    if (traceIndices[i] < gd.data.length) {
-                        return Plotly.extendTraces(
-                            gd,
-                            updateObject,
-                            [traceIndices[i]],
-                            maxPoints
-                        ).then(() => {
-                            const gd = this.gd.current;
-
-                            // double-check gd hasn't been unmounted
-                            if (!gd) {
-                                return;
-                            }
-                            gd.classList.remove('dash-graph--pending');
-                        });
-                    }
-                    return Plotly.addTraces(gd, value).then(() => {
-                        const gd = this.gd.current;
-
-                        // double-check gd hasn't been unmounted
-                        if (!gd) {
-                            return;
-                        }
-                        gd.classList.remove('dash-graph--pending');
-                    });
-                }
-            }
-        }
-
-        return this.plot(props);
-    }
-
-    getConfig(config, responsive) {
-        return mergeDeepRight(config, this.getConfigOverride(responsive));
-    }
-
-    getLayout(layout, responsive) {
-        if (!layout) {
-            return layout;
-        }
-
-        return mergeDeepRight(layout, this.getLayoutOverride(responsive));
-    }
-
-    getConfigOverride(responsive) {
-        switch (responsive) {
-            case false:
-                return UNRESPONSIVE_CONFIG;
-            case true:
-                return RESPONSIVE_CONFIG;
-            default:
-                return AUTO_CONFIG;
-        }
-    }
-
-    getLayoutOverride(responsive) {
-        switch (responsive) {
-            case false:
-                return UNRESPONSIVE_LAYOUT;
-            case true:
-                return RESPONSIVE_LAYOUT;
-            default:
-                return AUTO_LAYOUT;
-        }
-    }
-
-    isResponsive(props) {
-        const {config, figure, responsive} = props;
-
-        if (type(responsive) === 'Boolean') {
-            return responsive;
-        }
-
-        return Boolean(
-            config.responsive &&
-                (!figure.layout ||
-                    ((figure.layout.autosize ||
-                        isNil(figure.layout.autosize)) &&
-                        (isNil(figure.layout.height) ||
-                            isNil(figure.layout.width))))
-        );
-    }
-
-    graphResize(force = false) {
-        if (!force && !this.isResponsive(this.props)) {
-            return;
-        }
-
-        const gd = this.gd.current;
-        if (!gd) {
-            return;
-        }
-
-        gd.classList.add('dash-graph--pending');
-        Plotly.Plots.resize(gd)
-            .catch(() => {})
-            .finally(() => gd.classList.remove('dash-graph--pending'));
-    }
-
-    bindEvents() {
-        const {
-            setProps,
-            clear_on_unhover,
-            relayoutData,
-            restyleData,
-            hoverData,
-            selectedData,
-        } = this.props;
-
-        const gd = this.gd.current;
-
-        gd.on('plotly_click', (eventData) => {
-            const clickData = filterEventData(gd, eventData, 'click');
-            if (!isNil(clickData)) {
-                setProps({clickData});
-            }
-        });
-        gd.on('plotly_clickannotation', (eventData) => {
-            const clickAnnotationData = omit(
-                ['event', 'fullAnnotation'],
-                eventData
-            );
-            setProps({clickAnnotationData});
-        });
-        gd.on('plotly_hover', (eventData) => {
-            const hover = filterEventData(gd, eventData, 'hover');
-            if (!isNil(hover) && !equals(hover, hoverData)) {
-                setProps({hoverData: hover});
-            }
-        });
-        gd.on('plotly_selected', (eventData) => {
-            const selected = filterEventData(gd, eventData, 'selected');
-            if (!isNil(selected) && !equals(selected, selectedData)) {
-                setProps({selectedData: selected});
-            }
-        });
-        gd.on('plotly_deselect', () => {
-            setProps({selectedData: null});
-        });
-        gd.on('plotly_relayout', (eventData) => {
-            const relayout = filterEventData(gd, eventData, 'relayout');
-            if (!isNil(relayout) && !equals(relayout, relayoutData)) {
-                setProps({relayoutData: relayout});
-            }
-        });
-        gd.on('plotly_restyle', (eventData) => {
-            const restyle = filterEventData(gd, eventData, 'restyle');
-            if (!isNil(restyle) && !equals(restyle, restyleData)) {
-                setProps({restyleData: restyle});
-            }
-        });
-        gd.on('plotly_unhover', () => {
-            if (clear_on_unhover) {
-                setProps({hoverData: null});
-            }
-        });
+        this.clearState = this.clearState.bind(this);
     }
 
     componentDidMount() {
-        this.plot(this.props);
+        if (this.props.prependData) {
+            this.setState({
+                prependData: this.props.prependData,
+            });
+        }
+        if (this.props.extendData) {
+            this.setState({
+                extendData: this.props.extendData,
+            });
+        }
     }
 
     componentWillUnmount() {
-        const gd = this.gd.current;
-        if (gd && gd.removeAllListeners) {
-            gd.removeAllListeners();
-            if (this._hasPlotted) {
-                Plotly.purge(gd);
-            }
-        }
-    }
-
-    shouldComponentUpdate(nextProps) {
-        return (
-            this.props.id !== nextProps.id ||
-            JSON.stringify(this.props.style) !== JSON.stringify(nextProps.style)
-        );
+        this.setState({
+            prependData: EMPTY_DATA,
+            extendData: EMPTY_DATA,
+        });
     }
 
     UNSAFE_componentWillReceiveProps(nextProps) {
-        const idChanged = this.props.id !== nextProps.id;
-        if (idChanged) {
-            /*
-             * then the dom needs to get re-rendered with a new ID.
-             * the graph will get updated in componentDidUpdate
-             */
-            return;
+        let prependData = this.state.prependData;
+        let extendData = this.state.extendData;
+
+        if (this.props.figure !== nextProps.figure) {
+            prependData = EMPTY_DATA;
         }
 
         if (
-            this.props.figure !== nextProps.figure ||
-            this.props._dashprivate_transformConfig !==
-                nextProps._dashprivate_transformConfig ||
-            this.props._dashprivate_transformFigure !==
-                nextProps._dashprivate_transformFigure
+            nextProps.prependData &&
+            this.props.prependData !== nextProps.prependData
         ) {
-            this.plot(nextProps);
+            prependData = nextProps.prependData;
+        } else {
+            prependData = EMPTY_DATA;
         }
 
-        if (this.props.extendData !== nextProps.extendData) {
-            this.extend(nextProps);
+        if (prependData !== EMPTY_DATA) {
+            this.setState({
+                prependData,
+            });
+        }
+
+        if (this.props.figure !== nextProps.figure) {
+            extendData = EMPTY_DATA;
+        }
+
+        if (
+            nextProps.extendData &&
+            this.props.extendData !== nextProps.extendData
+        ) {
+            extendData = nextProps.extendData;
+        } else {
+            extendData = EMPTY_DATA;
+        }
+
+        if (extendData !== EMPTY_DATA) {
+            this.setState({
+                extendData,
+            });
         }
     }
 
-    componentDidUpdate(prevProps) {
-        if (prevProps.id !== this.props.id) {
-            this.plot(this.props);
-        }
+    clearState(dataKey) {
+        this.setState((props) => {
+            var data = props[dataKey];
+            const res =
+                data && data.length
+                    ? {
+                          [dataKey]: EMPTY_DATA,
+                      }
+                    : undefined;
+            return res;
+        });
     }
 
     render() {
-        const {className, id, style, loading_state} = this.props;
-
         return (
-            <div
-                data-dash-is-loading={
-                    (loading_state && loading_state.is_loading) || undefined
-                }
-                style={style}
-                className={className}
-            >
-                <ResizeDetector
-                    handleHeight={true}
-                    handleWidth={true}
-                    refreshMode="debounce"
-                    refreshOptions={{trailing: true}}
-                    refreshRate={50}
-                    onResize={this.graphResize}
-                />
-                <div
-                    id={id}
-                    key={id}
-                    ref={this.gd}
-                    style={{height: '100%', width: '100%'}}
-                />
-            </div>
+            <GraphContainer
+                {...this.props}
+                prependData={this.state.prependData}
+                extendData={this.state.extendData}
+                clearState={this.clearState}
+            />
         );
     }
 }
 
-const graphPropTypes = {
+const Graph = graph;
+
+const GraphContainer = memo((props) => {
+    const {className, id} = props;
+
+    const extendedClassName = className
+        ? 'dash-graph ' + className
+        : 'dash-graph';
+
+    return (
+        <Suspense
+            fallback={
+                <div
+                    id={id}
+                    key={id}
+                    className={`${extendedClassName} dash-graph--pending`}
+                />
+            }
+        >
+            <Graph {...props} className={extendedClassName} />
+        </Suspense>
+    );
+});
+
+ExtendableGraph.propTypes = {
     ...privatePropTypes,
 
     /**
@@ -456,6 +214,18 @@ const graphPropTypes = {
      * https://plot.ly/javascript/plotlyjs-function-reference/#plotlyextendtraces
      */
     extendData: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
+
+    /**
+     * Data that should be prepended to existing traces. Has the form
+     * `[updateData, traceIndices, maxPoints]`, where `updateData` is an array
+     * containing data objects to prepend, `traceIndices` (optional) is an array
+     * of trace indices that should be extended, and `maxPoints` (optional) is
+     * either an integer defining the maximum number of points allowed or an
+     * object with key:value pairs matching `updateData`
+     * Reference the Plotly.prependTraces API for full usage:
+     * https://plot.ly/javascript/plotlyjs-function-reference/#plotlyprependtraces
+     */
+    prependData: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
 
     /**
      * Data from latest restyle event which occurs
@@ -763,8 +533,9 @@ const graphPropTypes = {
         component_name: PropTypes.string,
     }),
 };
+GraphContainer.propTypes = ExtendableGraph.propTypes;
 
-const graphDefaultProps = {
+ExtendableGraph.defaultProps = {
     ...privateDefaultProps,
     clickData: null,
     clickAnnotationData: null,
@@ -772,6 +543,7 @@ const graphDefaultProps = {
     selectedData: null,
     relayoutData: null,
     extendData: null,
+    prependData: null,
     restyleData: null,
     figure: {data: [], layout: {}, frames: []},
     responsive: 'auto',
@@ -782,14 +554,14 @@ const graphDefaultProps = {
         },
         transition: {
             duration: 750,
-            ease: 'cubic-in-out',
+            easing: 'cubic-in-out',
         },
     },
     clear_on_unhover: false,
     config: {},
 };
 
-ExtendableGraph.propTypes = graphPropTypes;
-ExtendableGraph.defaultProps = graphDefaultProps;
+export const graphPropTypes = ExtendableGraph.propTypes;
+export const graphDefaultProps = ExtendableGraph.defaultProps;
 
 export default ExtendableGraph;

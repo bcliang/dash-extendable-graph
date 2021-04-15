@@ -1,5 +1,5 @@
 const baseConfig = require('./webpack.config.js');
-const merge = require('webpack-merge');
+const { merge } = require('webpack-merge');
 const {WebpackPluginServe: Serve} = require('webpack-plugin-serve');
 
 const serve = new Serve({

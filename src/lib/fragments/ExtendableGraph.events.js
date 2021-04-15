@@ -50,7 +50,14 @@ export const filterEventData = (gd, eventData, event) => {
 
             points[i] = pointData;
         }
+
         filteredEventData = {points};
+
+        // for click events, add mouse button information to clickData.button
+        if (event === 'click') {
+            filteredEventData.button = eventData.event.button;
+        }
+
     } else if (event === 'relayout' || event === 'restyle') {
         /*
          * relayout shouldn't include any big objects
