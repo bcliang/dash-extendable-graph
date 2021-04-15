@@ -1,6 +1,4 @@
 import pytest
-from dash.testing.application_runners import import_app
-
 import dash
 import dash_html_components as html
 import dash_extendable_graph as deg

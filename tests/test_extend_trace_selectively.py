@@ -1,13 +1,9 @@
-from dash.testing.application_runners import import_app
-from multiprocessing import Value
-
 import dash_extendable_graph as deg
 import dash
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 import dash_html_components as html
 import dash_core_components as dcc
-import random
 import json
 
 # extending a specific trace (trace indices)
@@ -19,7 +15,7 @@ def test_extg004_extend_trace_selectively(dash_duo):
         [
             deg.ExtendableGraph(
                 id="extend_trace_selectively",
-                figure=dict(data=[dict(y=[0]), dict(y=[1]),]),
+                figure=dict(data=[dict(y=[0]), dict(y=[1])]),
             ),
             html.Div(id="output"),
             dcc.Interval(

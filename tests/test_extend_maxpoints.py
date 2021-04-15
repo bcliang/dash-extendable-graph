@@ -1,5 +1,3 @@
-from dash.testing.application_runners import import_app
-from multiprocessing import Value
 
 import dash_extendable_graph as deg
 import dash
@@ -7,7 +5,6 @@ from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
 import dash_html_components as html
 import dash_core_components as dcc
-import random
 import json
 
 # proper implementation of maximum number of points per trace
