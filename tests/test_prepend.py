@@ -20,9 +20,7 @@ def test_extg008_prependData(dash_duo):
             deg.ExtendableGraph(
                 id="trace_will_prepend",
                 config={"displaylogo": False},
-                figure=dict(
-                    data=[{"x": [0, 1, 2, 3, 4], "y": [0, 0.5, 1, 0.5, 0]}],
-                ),
+                figure=dict(data=[{"x": [0, 1, 2, 3, 4], "y": [0, 0.5, 1, 0.5, 0]}],),
             ),
             html.Div(id="output"),
             dcc.Interval(
@@ -74,9 +72,7 @@ def test_extg009_prependData_repeatedly(dash_duo):
             deg.ExtendableGraph(
                 id="trace_will_prepend",
                 config={"displaylogo": False},
-                figure=dict(
-                    data=[{"y": [0, 0.5, 1, 0.5, 0]}],
-                ),
+                figure=dict(data=[{"y": [0, 0.5, 1, 0.5, 0]}],),
             ),
             html.Div(id="output"),
             dcc.Interval(
@@ -111,9 +107,7 @@ def test_extg009_prependData_repeatedly(dash_duo):
     dash_duo.find_element("#trace_will_prepend")
 
     comparison = json.dumps(
-        dict(
-            y=[0.1, 0.2, 0.3, 0.4, 0.5, 0.1, 0.2, 0.3, 0.4, 0.5, 0, 0.5, 1, 0.5, 0],
-        )
+        dict(y=[0.1, 0.2, 0.3, 0.4, 0.5, 0.1, 0.2, 0.3, 0.4, 0.5, 0, 0.5, 1, 0.5, 0],)
     )
 
     dash_duo.wait_for_text_to_equal("#output", comparison)

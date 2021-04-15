@@ -19,12 +19,7 @@ def test_extg004_extend_trace_selectively(dash_duo):
         [
             deg.ExtendableGraph(
                 id="extend_trace_selectively",
-                figure=dict(
-                    data=[
-                        dict(y=[0]),
-                        dict(y=[1]),
-                    ]
-                ),
+                figure=dict(data=[dict(y=[0]), dict(y=[1]),]),
             ),
             html.Div(id="output"),
             dcc.Interval(
