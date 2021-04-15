@@ -1,2 +1,2 @@
 # dash is required to call `build:py`
-pip install dash
+dash
