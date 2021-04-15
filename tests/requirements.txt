@@ -5,6 +5,4 @@
 dash[testing]
 pyyaml
 requests
-ipdb
 flake8
-pylint
