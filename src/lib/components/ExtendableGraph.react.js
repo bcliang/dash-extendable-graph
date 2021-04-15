@@ -20,8 +20,8 @@ class ExtendableGraph extends Component {
         super(props);
 
         this.state = {
-            prependData: [],
-            extendData: [],
+            prependData: EMPTY_DATA,
+            extendData: EMPTY_DATA,
         };
 
         this.clearState = this.clearState.bind(this);
@@ -30,20 +30,20 @@ class ExtendableGraph extends Component {
     componentDidMount() {
         if (this.props.prependData) {
             this.setState({
-                prependData: [this.props.prependData],
+                prependData: this.props.prependData,
             });
         }
         if (this.props.extendData) {
             this.setState({
-                extendData: [this.props.extendData],
+                extendData: this.props.extendData,
             });
         }
     }
 
     componentWillUnmount() {
         this.setState({
-            prependData: [],
-            extendData: [],
+            prependData: EMPTY_DATA,
+            extendData: EMPTY_DATA,
         });
     }
 

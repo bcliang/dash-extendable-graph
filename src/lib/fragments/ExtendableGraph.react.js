@@ -430,12 +430,8 @@ class Graph extends Component {
 }
 Graph.propTypes = {
     ...graphPropTypes,
-    prependData: PropTypes.arrayOf(
-        PropTypes.oneOfType([PropTypes.array, PropTypes.object])
-    ),
-    extendData: PropTypes.arrayOf(
-        PropTypes.oneOfType([PropTypes.array, PropTypes.object])
-    ),
+    prependData: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
+    extendData: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
     clearState: PropTypes.func.isRequired,
 };
 Graph.defaultProps = {
