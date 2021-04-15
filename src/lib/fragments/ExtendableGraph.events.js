@@ -48,14 +48,16 @@ export const filterEventData = (gd, eventData, event) => {
                 pointData.pointNumbers = fullPoint.pointNumbers;
             }
 
-            // for plotly_click events, let's add the button information to the point
-            if (has('button', eventData.event)) {
-                pointData.button = eventData.event.button;
-            }
-
             points[i] = pointData;
         }
+
         filteredEventData = {points};
+
+        // for click events, add mouse button information to clickData.button
+        if (event === 'click') {
+            filteredEventData.button = eventData.event.button;
+        }
+
     } else if (event === 'relayout' || event === 'restyle') {
         /*
          * relayout shouldn't include any big objects
