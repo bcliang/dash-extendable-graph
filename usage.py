@@ -80,7 +80,7 @@ app.layout = html.Div(
             id="interval_extendablegraph_update",
             interval=1000,
             n_intervals=0,
-            max_intervals=5,
+            max_intervals=20,
         ),
     ]
 )
