@@ -81,7 +81,7 @@ def test_extg009_prependData_repeatedly(dash_duo):
             html.Div(id="output"),
             dcc.Interval(
                 id="interval_extendablegraph_update",
-                interval=10,
+                interval=500,
                 n_intervals=0,
                 max_intervals=2,
             ),
