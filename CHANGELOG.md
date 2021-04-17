@@ -12,7 +12,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 -
 
-## [1.3.0] - 2021-04-15
+## [1.3.0] - 2021-04-17
 ### Changed
 - [#51](https://github.com/bcliang/dash-extendable-graph/pull/51) Update project dependencies
 
