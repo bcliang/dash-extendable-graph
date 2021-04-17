@@ -168,12 +168,12 @@ $ pytest tests/test_extend_maxpoints.py
 
 ## Continuous Integration
 
-[![CI](https://github.com/bcliang/gamry-parser/actions/workflows/python-js-package.yml/badge.svg)](https://github.com/bcliang/gamry-parser/actions/workflows/python-js-package.yml)
+[![CI](https://github.com/bcliang/dash-extendable-graph/actions/workflows/python-js-package.yml/badge.svg)](https://github.com/bcliang/dash-extendable-graph/actions/workflows/python-js-package.yml)
 
 This repository uses a github action to automate integration testing. Linting and Tests are triggered for each pull request created in the `master` branch.
 
 ## Package Publishing
 
-[![Publish](https://github.com/bcliang/gamry-parser/actions/workflows/publish.yml/badge.svg)](https://github.com/bcliang/gamry-parser/actions/workflows/publish.yml)
+[![Publish](https://github.com/bcliang/dash-extendable-graph/actions/workflows/publish.yml/badge.svg)](https://github.com/bcliang/dash-extendable-graph/actions/workflows/publish.yml)
 
 This repository uses a github action to automate package deployment (in this case, compiling a source archive and binary wheel using `setuptools`). Publishing is triggered on each published release.
