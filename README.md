@@ -6,7 +6,6 @@ Note: As of version 1.1.0, `dash-extendable-graph` includes a minimized plotly.j
 
 [![PyPI](https://img.shields.io/pypi/v/dash-extendable-graph.svg)](https://pypi.org/project/dash-extendable-graph/)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/dash-extendable-graph.svg)
-[![Code Quality](https://img.shields.io/lgtm/grade/javascript/g/bcliang/dash-extendable-graph.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/bcliang/dash-extendable-graph/context:javascript)
 [![PyPI - License](https://img.shields.io/pypi/l/dash-extendable-graph.svg)](./LICENSE)
 
 ## Installation
@@ -129,6 +128,8 @@ $ python usage.py
 
 ## Tests
 
+[![lgtm](https://img.shields.io/lgtm/grade/javascript/g/bcliang/dash-extendable-graph.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/bcliang/dash-extendable-graph/context:javascript)
+
 ### Run locally
 
 Run linting + integration tests in one command: 
@@ -167,8 +168,12 @@ $ pytest tests/test_extend_maxpoints.py
 
 ## Continuous Integration
 
+[![CI](https://github.com/bcliang/gamry-parser/actions/workflows/python-js-package.yml/badge.svg)](https://github.com/bcliang/gamry-parser/actions/workflows/python-js-package.yml)
+
 This repository uses a github action to automate integration testing. Linting and Tests are triggered for each pull request created in the `master` branch.
 
 ## Package Publishing
+
+[![Publish](https://github.com/bcliang/gamry-parser/actions/workflows/publish.yml/badge.svg)](https://github.com/bcliang/gamry-parser/actions/workflows/publish.yml)
 
 This repository uses a github action to automate package deployment (in this case, compiling a source archive and binary wheel using `setuptools`). Publishing is triggered on each published release.
