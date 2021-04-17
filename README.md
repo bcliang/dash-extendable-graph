@@ -1,15 +1,12 @@
 # dash-extendable-graph
 
+`dash-extendable-graph` is a Dash component library containing a single component: `ExtendableGraph`. The component was forked from Plotly's core `Graph` component ([dash-core-components](https://github.com/plotly/dash-core-components)). `dash-extendable-graph` has modified `extendData` and `prependData` properties that accept trace data matching the format for `figure["data"]`. These properties support (1) adding new traces and (2) allow multiple trace types to be extended/prepended within a single callback (not supported by the core component)
+
+Note: As of version 1.1.0, `dash-extendable-graph` includes a minimized plotly.js as an internal dependency. Previously, the component assumed it would be used in conjunction with `dash-core-components`.
+
 [![PyPI](https://img.shields.io/pypi/v/dash-extendable-graph.svg)](https://pypi.org/project/dash-extendable-graph/)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/dash-extendable-graph.svg)
-[![Code Quality](https://img.shields.io/lgtm/grade/javascript/g/bcliang/dash-extendable-graph.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/bcliang/dash-extendable-graph/context:javascript)
 [![PyPI - License](https://img.shields.io/pypi/l/dash-extendable-graph.svg)](./LICENSE)
-
-dash-extendable-graph is a Dash component library. This library contains a single component: `ExtendableGraph`. The component is a fork of the Graph() component from [dash-core-components](https://github.com/plotly/dash-core-components) (version 1.3.1). Best efforts will be made to keep in sync with the upstream repository. 
-
-The primary differentiation between ExtendableGraph and Graph components is the `extendData` callback. This component has been modified to follow an api that matches the format of `figure['data']` (as opposed to the api defined `Graph.extendData` and `Plotly.extendTraces()`).
-
-Note: As of version 1.1.0, `dash-extendable-graph` includes PlotlyJS as an internal dependency. Previously, the component assumed it would be used in conjunction with `dash-core-components`. As of `dash-core-components` version ^1.4.0, `PlotlyJS` is only available asynchronously when a Graph component exists on the page.
 
 ## Installation
 
@@ -29,13 +26,21 @@ $ pip install dash-extendable-graph
 
 General examples may be found in `usage.py`
 
-### extendData properties
+### extendData
 
 1. `updateData` [list]: a list of dictionaries, each dictionary representing trace data in a format matching `figure['data']` (e.g `dict(x=[1], y=[1])`)
 2. `traceIndices` [list, optional]: identify the traces that should be extended. If the specified trace index does not exist, a (new) corresponding trace shall be appended to the figure.
 3. `maxPoints` [number, optional]: define the maximum number of points to plot in the figure (per trace).
 
-Based on the [`Plotly.extendTraces()` api](https://github.com/plotly/plotly.js/blob/master/src/plot_api/plot_api.js#L979). However, the `updateData` key has been modified to better match the contents of `Plotly.plot()` (e.g. `Graph.figure`). Aside from following dash-familiar styling, this component allows the user to extend traces of different types in a single call (`Plotly.extendTraces()` takes a map of key:val and assumes all traces will share the same data keys).
+Based on the [`Plotly.extendTraces()` api](https://github.com/plotly/plotly.js/blob/master/src/plot_api/plot_api.js#884). However, the `updateData` key has been modified to better match the contents of `Plotly.plot()` (e.g. `Graph.figure`). Aside from following dash-familiar styling, this component allows the user to extend traces of different types in a single call (`Plotly.extendTraces()` takes a map of key:val and assumes all traces will share the same data keys).
+
+### prependData
+
+1. `updateData` [list]: a list of dictionaries, each dictionary representing trace data in a format matching `figure['data']` (e.g `dict(x=[1], y=[1])`)
+2. `traceIndices` [list, optional]: identify the traces that should be extended. If the specified trace index does not exist, a (new) corresponding trace shall be appended to the figure.
+3. `maxPoints` [number, optional]: define the maximum number of points to plot in the figure (per trace).
+
+Based on the [`Plotly.prependTraces()` api](https://github.com/plotly/plotly.js/blob/master/src/plot_api/plot_api.js#L942). However, the `updateData` key has been modified to better match the contents of `Plotly.plot()` (e.g. `Graph.figure`). Aside from following dash-familiar styling, this component allows the user to prepend traces of different types in a single call (`Plotly.prependTraces()` takes a map of key:val and assumes all traces will share the same data keys).
 
 ### Code
 
@@ -123,6 +128,8 @@ $ python usage.py
 
 ## Tests
 
+[![lgtm](https://img.shields.io/lgtm/grade/javascript/g/bcliang/dash-extendable-graph.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/bcliang/dash-extendable-graph/context:javascript)
+
 ### Run locally
 
 Run linting + integration tests in one command: 
@@ -145,7 +152,7 @@ Also you can apply formatting settings.
 $ npm run format
 ```
 
-### Integration
+### Integration Tests
 
 Integration tests for the component can be found in `tests/`
 ```bash
@@ -159,23 +166,14 @@ Run individual integration tests based on the filename.
 $ pytest tests/test_extend_maxpoints.py
 ```
 
-## Continuous Integration via Github Actions
+## Continuous Integration
 
-This repository uses github actions to automate testing. CI is triggered for each pull request into the `master` branch
+[![CI](https://github.com/bcliang/gamry-parser/actions/workflows/python-js-package.yml/badge.svg)](https://github.com/bcliang/gamry-parser/actions/workflows/python-js-package.yml)
 
-## Publishing
+This repository uses a github action to automate integration testing. Linting and Tests are triggered for each pull request created in the `master` branch.
 
-### Create a production build and publish:
+## Package Publishing
 
-```bash
-$ rm -rf dist
-$ npm run build
-$ python setup.py sdist bdist_wheel
-$ twine upload dist/*
-$ npm publish
-```
+[![Publish](https://github.com/bcliang/gamry-parser/actions/workflows/publish.yml/badge.svg)](https://github.com/bcliang/gamry-parser/actions/workflows/publish.yml)
 
-Test your tarball by copying it into a new environment and installing it locally:
-```bash
-$ pip install dash_extendable_graph-X.X.X.tar.gz
-```
+This repository uses a github action to automate package deployment (in this case, compiling a source archive and binary wheel using `setuptools`). Publishing is triggered on each published release.

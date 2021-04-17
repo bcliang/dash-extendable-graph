@@ -2,8 +2,17 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
-## [1.3.0] - 2021-04-15
+## [Unreleased]
+### Changed
+- 
 
+### Fixed
+-
+
+### Added
+-
+
+## [1.3.0] - 2021-04-17
 ### Changed
 - [#51](https://github.com/bcliang/dash-extendable-graph/pull/51) Update project dependencies
 
@@ -13,6 +22,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 - [#53](https://github.com/bcliang/dash-extendable-graph/pull/53) Impl. Refactor, prependData, and mouse clicks
+- [#55](https://github.com/bcliang/dash-extendable-graph/pull/55) Impl. Github Action for Publishing
 
 ## [1.2.0] - 2020-06-30
 ### Fixed
