@@ -7,7 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - 
 
 ### Fixed
--
+- [#57](https://github.com/bcliang/dash-extendable-graph/pull/57) Fix: mark react-resize-detector as dependency
 
 ### Added
 -

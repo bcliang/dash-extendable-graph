@@ -57,7 +57,6 @@ export const filterEventData = (gd, eventData, event) => {
         if (event === 'click') {
             filteredEventData.button = eventData.event.button;
         }
-
     } else if (event === 'relayout' || event === 'restyle') {
         /*
          * relayout shouldn't include any big objects
